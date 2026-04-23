@@ -1,0 +1,817 @@
+restart
+I (241950) system_cmd: Restarting
+I (241951) wifi:state: run -> init (0x0)
+I (241952) wifi:pm stop, total sleep time: 0 us / 239107411 us
+I (241953) wifi:new:<8,0>, old:<8,0>, ap:<255,255>, sta:<8,0>, prof:1, snd_ch_cfg:0x0
+W (241955) app_main: Wi-Fi disconnected
+I (241956) wifi_cmd: sta disconnect, s_reconnect...
+I (241994) wifi:flush txq
+I (241994) wifi:stop sw txq
+I (241994) wifi:lmac stop hw txq
+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00I (31) boot: ESP-IDF v5.4-552-ge37d33cc1c-dirty 2nd stage bootloade
+I (31) boot: compile time Feb 27 2026 12:40:37
+I (31) boot: Multicore bootloade
+I (32) boot: chip revision: v0.2
+I (32) boot: efuse block revision: v1.3
+I (32) qio_mode: Enabling default flash chip QIO
+I (32) boot.esp32s3: Boot SPI Speed : 80MHz
+I (32) boot.esp32s3: SPI Mode       : QIO
+I (32) boot.esp32s3: SPI Flash Size : 4MB
+I (32) boot: Enabling RNG early entropy source...
+I (33) boot: Partition Table:
+I (33) boot: ## Label            Usage          Type ST Offset   Length
+I (33) boot:  0 nvs              WiFi data        01 02 0000d000 00008000
+I (34) boot:  1 fctry            WiFi data        01 02 00015000 00004000
+I (34) boot:  2 log_status       WiFi data        01 02 00019000 00004000
+I (34) boot:  3 otadata          OTA data         01 00 0001d000 00002000
+I (35) boot:  4 phy_init         RF data          01 01 0001f000 00001000
+I (35) boot:  5 ota_0            OTA app          00 10 00020000 001ca000
+I (35) boot: End of partition table
+I (36) esp_image: segment 0: paddr=00020020 vaddr=3c0a0020 size=1e274h (123508) map
+I (55) esp_image: segment 1: paddr=0003e29c vaddr=3fc9a700 size=01d7ch (  7548) load
+I (56) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=9882ch (624684) map
+I (150) esp_image: segment 3: paddr=000d8854 vaddr=3fc9c47c size=02c54h ( 11348) load
+I (152) esp_image: segment 4: paddr=000db4b0 vaddr=40374000 size=16668h ( 91752) load
+I (170) esp_image: segment 5: paddr=000f1b20 vaddr=600fe100 size=0001ch (    28) load
+I (179) boot: Loaded app from partition at offset 0x20000
+I (179) boot: Disabling RNG early entropy source...
+I (180) cpu_start: Multicore app
+I (189) cpu_start: Pro cpu start user code
+I (189) cpu_start: cpu freq: 240000000 Hz
+I (189) app_init: Application information:
+I (189) app_init: Project name:     CSI2
+I (189) app_init: App version:      1
+I (189) app_init: Compile time:     Feb 27 2026 12:40:01
+I (189) app_init: ELF file SHA256:  80a567319...
+I (190) app_init: ESP-IDF:          v5.4-552-ge37d33cc1c-dirty
+I (190) efuse_init: Min chip rev:     v0.0
+I (190) efuse_init: Max chip rev:     v0.99 
+I (190) efuse_init: Chip rev:         v0.2
+I (191) heap_init: Initializing. RAM available for dynamic allocation:
+I (191) heap_init: At 3FCA35F0 len 00046120 (280 KiB): RAM
+I (191) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+I (192) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+I (192) heap_init: At 600FE11C len 00001ECC (7 KiB): RTCRAM
+I (193) spi_flash: detected chip: boya
+I (193) spi_flash: flash io: qio
+W (193) spi_flash: Detected size(16384k) larger than the size in the binary image header(4096k). Using the size in the binary image header.
+W (193) rmt(legacy): legacy driver is deprecated, please migrate to `driver/rmt_tx.h` and/or `driver/rmt_rx.h`
+I (194) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (194) sleep_gpio: Enable automatic switching of GPIO sleep configuratio
+I (195) main_task: Started on CPU0
+I (243) main_task: Calling app_main()
+\x1b[5
+I (749) pp: pp rom version: e7ae62f
+I (750) net80211: net80211 rom version: e7ae62f
+I (752) wifi:wifi driver task: 3fcaea7c, prio:23, stack:6656, core=0
+I (754) wifi:wifi firmware version: d23f80a
+I (755) wifi:wifi certification version: v7.0
+I (755) wifi:config NVS flash: enabled
+I (756) wifi:config nano formatting: disabled
+I (756) wifi:Init data frame dynamic rx buffer num: 32
+I (757) wifi:Init static rx mgmt buffer num: 5
+I (758) wifi:Init management short buffer num: 32
+I (758) wifi:Init dynamic tx buffer num: 32
+I (759) wifi:Init static tx FG buffer num: 2
+I (759) wifi:Init static rx buffer size: 2212
+I (760) wifi:Init static rx buffer num: 10
+I (760) wifi:Init dynamic rx buffer num: 32
+I (761) wifi_init: rx ba win: 6
+I (762) wifi_init: accept mbox: 6
+I (762) wifi_init: tcpip mbox: 32
+I (762) wifi_init: udp mbox: 6
+I (763) wifi_init: tcp mbox: 6
+I (763) wifi_init: tcp tx win: 5760
+I (764) wifi_init: tcp rx win: 5760
+I (764) wifi_init: tcp mss: 1440
+I (764) wifi_init: WiFi IRAM OP enabled
+I (765) wifi_init: WiFi RX IRAM OP enabled
+I (766) phy_init: phy_version 680,a6008b2,Jun  4 2024,16:41:10
+I (794) wifi:mode : sta (fc:01:2c:d1:71:60)
+I (794) wifi:enable tsf
+I (796) wifi:Set ps type: 0, coexist: 0
+I (797) wifi:ifx:0, phymode(new:2, sta nvs: 3 ap nvs: 3)
+I (798) wifi:enable tsf
+I (800) wifi:ic_enable_sniffe
+"Type 'help' to get the list of commands.\r\r\n"
+Use UP/DOWN arrows to navigate through command history.
+Press TAB when typing command name to auto-complete.
+Your terminal application does not support escape sequences.
+Line editing and history features are disabled.
+On Windows, try using Putty instead.
+csi> I (806) esp_radar: CSI_RADAR Version: 0.2.0, Compile time: May 17 2024 - 17:51:42
+I (807) esp_radar: [esp_radar_start, 994] csi_recv_interval: 10, csi_handle_time: 250, csi_handle_window: 50, csi_handle_buffer: 70
+I (809) main_task: Returned from app_main()
+radar --csi_output_type LLFT --csi_output_format base64
+csi> 
+csi> wifi_config --ssid "SmartSence" --password Rcall2025Rcall
+W (1277) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+I (2415) wifi:new:<8,0>, old:<11,2>, ap:<255,255>, sta:<8,0>, prof:1, snd_ch_cfg:0x0
+I (2417) wifi:state: init -> auth (0xb0)
+I (2419) wifi:state: auth -> assoc (0x0)
+I (2424) wifi:state: assoc -> run (0x10)
+I (2535) wifi:connected with SmartSence, aid = 11, channel 8, BW20, bssid = 50:ff:20:3b:10:ed
+I (2536) wifi:security: WPA2-PSK, phy: bg, rssi: -55
+I (2537) wifi:pm start, type: 0
+I (2538) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+I (2539) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000
+"I (2540) wifi:AP's beacon interval = 102400 us, DTIM period = 1\r\n"
+I (2542) wifi_cmd: Connected to SmartSence (bssid: 50:ff:20:3b:10:ed, channel: 8)
+I (3813) esp_netif_handlers: sta ip: 192.168.1.41, mask: 255.255.255.0, gw: 192.168.1.1
+I (3814) wifi:ic_disable_sniffe
+I (3815) app_main: Send null data to route
+csi> W (3815) app_main: null_data, destination_address: 50:ff:20:3b:10:ed, source_address: fc:01:2c:d1:71:60, broadcast_address: 50:ff:20:3b:10:ed
+csi> W (3847) esp_radar: time_tamp: 3847, end: 3847, last: 0, num: 0
+I (4364) esp_radar: time: 510/7, free_heap: 232208, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000000, window: 49, begin: 0, end: 49, freq: 96Hz
+I (4593) esp_radar: time: 500/5, free_heap: 232184, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000000, window: 48, begin: 24, end: 2, freq: 96Hz
+I (4844) esp_radar: time: 500/7, free_heap: 232184, num: 0, rssi: -57, gain: 55/-50, wander: 0.000000, jitter: 0.000000, window: 50, begin: 48, end: 28, freq: 100Hz
+I (5103) esp_radar: time: 500/6, free_heap: 232184, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000009, window: 50, begin: 3, end: 53, freq: 100Hz
+I (5344) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000281, window: 49, begin: 28, end: 7, freq: 98Hz
+I (5594) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000170, window: 50, begin: 52, end: 32, freq: 100Hz
+I (5835) esp_radar: time: 491/7, free_heap: 231996, num: 0, rssi: -57, gain: 56/-54, wander: 0.000000, jitter: 0.000029, window: 50, begin: 7, end: 57, freq: 101Hz
+I (6083) esp_radar: time: 490/6, free_heap: 231996, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000096, window: 50, begin: 32, end: 12, freq: 102Hz
+I (6334) esp_radar: time: 500/6, free_heap: 231996, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000293, window: 49, begin: 57, end: 36, freq: 98Hz
+I (6573) esp_radar: time: 500/6, free_heap: 231996, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000048, window: 47, begin: 11, end: 58, freq: 94Hz
+I (6813) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000038, window: 48, begin: 34, end: 12, freq: 96Hz
+I (7074) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -57, gain: 58/-61, wander: 0.000000, jitter: 0.000126, window: 49, begin: 58, end: 37, freq: 98Hz
+I (7312) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000050, window: 48, begin: 12, end: 60, freq: 96Hz
+I (7563) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000034, window: 49, begin: 36, end: 15, freq: 98Hz
+I (7813) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 56/-52, wander: 0.000000, jitter: 0.000019, window: 50, begin: 60, end: 40, freq: 100Hz
+I (8063) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000021, window: 50, begin: 15, end: 65, freq: 100Hz
+I (8313) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 56/-53, wander: 0.000000, jitter: 0.000122, window: 49, begin: 40, end: 19, freq: 98Hz
+I (8553) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000007, window: 48, begin: 64, end: 42, freq: 96Hz
+I (8802) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 57/-56, wander: 0.000000, jitter: 0.000033, window: 49, begin: 18, end: 67, freq: 98Hz
+I (9052) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -57, gain: 56/-54, wander: 0.000000, jitter: 0.000042, window: 47, begin: 42, end: 19, freq: 94Hz
+I (9293) esp_radar: time: 509/6, free_heap: 231988, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000032, window: 47, begin: 65, end: 42, freq: 92Hz
+I (9542) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000230, window: 47, begin: 18, end: 65, freq: 94Hz
+I (9792) esp_radar: time: 510/5, free_heap: 231996, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000180, window: 48, begin: 41, end: 19, freq: 94Hz
+I (10044) esp_radar: time: 500/7, free_heap: 231996, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000088, window: 49, begin: 65, end: 44, freq: 98Hz
+I (10293) esp_radar: time: 500/6, free_heap: 231996, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000599, window: 48, begin: 19, end: 67, freq: 96Hz
+I (10544) esp_radar: time: 509/7, free_heap: 231996, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000161, window: 49, begin: 43, end: 22, freq: 96Hz
+I (10792) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 57/-57, wander: 0.000000, jitter: 0.000134, window: 48, begin: 67, end: 45, freq: 96Hz
+I (11031) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000386, window: 43, begin: 21, end: 64, freq: 86Hz
+I (11262) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000700, window: 42, begin: 42, end: 14, freq: 84Hz
+I (11522) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 57/-54, wander: 0.000000, jitter: 0.000998, window: 43, begin: 63, end: 36, freq: 86Hz
+I (11764) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -58, gain: 59/-58, wander: 0.000000, jitter: 0.000106, window: 44, begin: 14, end: 58, freq: 87Hz
+I (12022) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000044, window: 44, begin: 36, end: 10, freq: 88Hz
+I (12349) esp_radar: time: 585/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000093, window: 46, begin: 58, end: 34, freq: 78Hz
+I (12534) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000133, window: 46, begin: 11, end: 57, freq: 92Hz
+I (12834) esp_radar: time: 484/7, free_heap: 231988, num: 0, rssi: -58, gain: 59/-60, wander: 0.000000, jitter: 0.000497, window: 50, begin: 34, end: 14, freq: 103Hz
+I (13063) esp_radar: time: 509/6, free_heap: 231988, num: 0, rssi: -58, gain: 59/-62, wander: 0.000000, jitter: 0.000303, window: 46, begin: 59, end: 35, freq: 90Hz
+I (13303) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -59, gain: 59/-60, wander: 0.000000, jitter: 0.000403, window: 42, begin: 12, end: 54, freq: 84Hz
+I (13552) esp_radar: time: 510/5, free_heap: 231988, num: 0, rssi: -59, gain: 59/-58, wander: 0.000000, jitter: 0.000360, window: 42, begin: 33, end: 5, freq: 82Hz
+I (13803) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -59, gain: 58/-56, wander: 0.000000, jitter: 0.000943, window: 43, begin: 54, end: 27, freq: 86Hz
+I (14053) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -59, gain: 57/-54, wander: 0.000000, jitter: 0.000171, window: 44, begin: 5, end: 49, freq: 88Hz
+I (14304) esp_radar: time: 501/6, free_heap: 231988, num: 0, rssi: -59, gain: 59/-58, wander: 0.000000, jitter: 0.000166, window: 45, begin: 27, end: 2, freq: 89Hz
+I (14553) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000559, window: 45, begin: 49, end: 24, freq: 90Hz
+I (14792) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000124, window: 43, begin: 1, end: 44, freq: 86Hz
+I (15077) esp_radar: time: 544/6, free_heap: 231004, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000669, window: 44, begin: 22, end: 66, freq: 80Hz
+I (15293) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000304, window: 47, begin: 44, end: 21, freq: 94Hz
+I (15574) esp_radar: time: 496/7, free_heap: 231988, num: 0, rssi: -58, gain: 59/-61, wander: 0.000000, jitter: 0.000075, window: 50, begin: 67, end: 47, freq: 100Hz
+I (15803) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-55, wander: 0.000000, jitter: 0.000135, window: 45, begin: 22, end: 67, freq: 90Hz
+I (16032) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -59, gain: 58/-58, wander: 0.000000, jitter: 0.000298, window: 44, begin: 44, end: 18, freq: 88Hz
+I (16294) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -59, gain: 58/-56, wander: 0.000000, jitter: 0.000187, window: 46, begin: 66, end: 42, freq: 92Hz
+I (16544) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000282, window: 47, begin: 19, end: 66, freq: 94Hz
+I (16793) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 59/-62, wander: 0.000000, jitter: 0.000146, window: 46, begin: 42, end: 18, freq: 92Hz
+I (17032) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 59/-62, wander: 0.000000, jitter: 0.000605, window: 44, begin: 65, end: 39, freq: 88Hz
+I (17272) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -59, gain: 57/-54, wander: 0.000000, jitter: 0.001393, window: 44, begin: 17, end: 61, freq: 88Hz
+I (17532) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -59, gain: 59/-59, wander: 0.000000, jitter: 0.003192, window: 41, begin: 39, end: 10, freq: 82Hz
+I (17752) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -59, gain: 57/-52, wander: 0.000000, jitter: 0.001505, window: 41, begin: 59, end: 30, freq: 82Hz
+I (18033) esp_radar: time: 508/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.001372, window: 46, begin: 9, end: 55, freq: 90Hz
+I (18292) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 56/-51, wander: 0.000000, jitter: 0.001360, window: 47, begin: 32, end: 9, freq: 94Hz
+I (18571) esp_radar: time: 538/6, free_heap: 231792, num: 0, rssi: -58, gain: 58/-62, wander: 0.000000, jitter: 0.000820, window: 46, begin: 55, end: 31, freq: 85Hz
+I (18784) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000341, window: 49, begin: 8, end: 57, freq: 98Hz
+I (19033) esp_radar: time: 459/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000140, window: 50, begin: 32, end: 12, freq: 108Hz
+I (19283) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 56/-54, wander: 0.000000, jitter: 0.000134, window: 50, begin: 57, end: 37, freq: 100Hz
+I (19534) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000040, window: 49, begin: 12, end: 61, freq: 98Hz
+I (19774) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000229, window: 49, begin: 36, end: 15, freq: 98Hz
+I (20024) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 56/-50, wander: 0.000000, jitter: 0.000023, window: 49, begin: 60, end: 39, freq: 98Hz
+I (20263) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000049, window: 49, begin: 14, end: 63, freq: 98Hz
+I (20514) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000038, window: 50, begin: 38, end: 18, freq: 100Hz
+I (20762) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000093, window: 48, begin: 63, end: 41, freq: 96Hz
+I (21002) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000070, window: 48, begin: 17, end: 65, freq: 96Hz
+I (21263) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000254, window: 50, begin: 41, end: 21, freq: 100Hz
+I (21514) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000147, window: 49, begin: 66, end: 45, freq: 98Hz
+I (21753) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 57/-57, wander: 0.000000, jitter: 0.000118, window: 48, begin: 20, end: 68, freq: 96Hz
+I (22003) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -59, gain: 58/-57, wander: 0.000000, jitter: 0.000226, window: 48, begin: 44, end: 22, freq: 96Hz
+I (22253) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000865, window: 46, begin: 68, end: 44, freq: 92Hz
+I (22502) esp_radar: time: 508/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000040, window: 47, begin: 21, end: 68, freq: 92Hz
+I (22753) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000114, window: 48, begin: 44, end: 22, freq: 96Hz
+I (23003) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000876, window: 45, begin: 68, end: 43, freq: 90Hz
+I (23234) esp_radar: time: 505/7, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000465, window: 45, begin: 20, end: 65, freq: 89Hz
+I (23493) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.001954, window: 46, begin: 42, end: 18, freq: 92Hz
+I (23735) esp_radar: time: 502/5, free_heap: 231988, num: 0, rssi: -59, gain: 59/-61, wander: 0.000000, jitter: 0.000497, window: 45, begin: 65, end: 40, freq: 89Hz
+I (23983) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000776, window: 44, begin: 17, end: 61, freq: 88Hz
+I (24223) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000299, window: 45, begin: 39, end: 14, freq: 90Hz
+I (24483) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000346, window: 48, begin: 61, end: 39, freq: 96Hz
+I (24732) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000032, window: 48, begin: 15, end: 63, freq: 96Hz
+I (24982) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000098, window: 49, begin: 39, end: 18, freq: 98Hz
+I (25233) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000063, window: 49, begin: 63, end: 42, freq: 98Hz
+I (25486) esp_radar: time: 510/8, free_heap: 231988, num: 0, rssi: -58, gain: 59/-62, wander: 0.000000, jitter: 0.001046, window: 48, begin: 17, end: 65, freq: 94Hz
+restart
+I (51715) system_cmd: Restarting
+I (51715) wifi:ic_disable_sniffer
+I (51716) wifi:flush txq
+I (51717) wifi:stop sw txq
+I (51717) wifi:lmac stop hw txq
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            I (31) boot: ESP-IDF v5.4-552-ge37d33cc1c-dirty 2nd stage bootloader
+I (31) boot: compile time Feb 27 2026 12:40:37
+I (31) boot: Multicore bootloader
+I (32) boot: chip revision: v0.2
+I (32) boot: efuse block revision: v1.3
+I (32) qio_mode: Enabling default flash chip QIO
+I (32) boot.esp32s3: Boot SPI Speed : 80MHz
+I (32) boot.esp32s3: SPI Mode       : QIO
+I (32) boot.esp32s3: SPI Flash Size : 4MB
+I (32) boot: Enabling RNG early entropy source...
+I (33) boot: Partition Table:
+I (33) boot: ## Label            Usage          Type ST Offset   Length
+I (33) boot:  0 nvs              WiFi data        01 02 0000d000 00008000
+I (34) boot:  1 fctry            WiFi data        01 02 00015000 00004000
+I (34) boot:  2 log_status       WiFi data        01 02 00019000 00004000
+I (34) boot:  3 otadata          OTA data         01 00 0001d000 00002000
+I (35) boot:  4 phy_init         RF data          01 01 0001f000 00001000
+I (35) boot:  5 ota_0            OTA app          00 10 00020000 001ca000
+I (35) boot: End of partition table
+I (36) esp_image: segment 0: paddr=00020020 vaddr=3c0a0020 size=1e274h (123508) map
+I (54) esp_image: segment 1: paddr=0003e29c vaddr=3fc9a700 size=01d7ch (  7548) load
+I (56) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=9882ch (624684) map
+I (149) esp_image: segment 3: paddr=000d8854 vaddr=3fc9c47c size=02c54h ( 11348) load
+I (152) esp_image: segment 4: paddr=000db4b0 vaddr=40374000 size=16668h ( 91752) load
+I (169) esp_image: segment 5: paddr=000f1b20 vaddr=600fe100 size=0001ch (    28) load
+I (178) boot: Loaded app from partition at offset 0x20000
+I (178) boot: Disabling RNG early entropy source...
+I (179) cpu_start: Multicore app
+I (188) cpu_start: Pro cpu start user code
+I (188) cpu_start: cpu freq: 240000000 Hz
+I (188) app_init: Application information:
+I (188) app_init: Project name:     CSI2
+I (188) app_init: App version:      1
+I (188) app_init: Compile time:     Feb 27 2026 12:40:01
+I (189) app_init: ELF file SHA256:  80a567319...
+I (189) app_init: ESP-IDF:          v5.4-552-ge37d33cc1c-dirty
+I (189) efuse_init: Min chip rev:     v0.0
+I (189) efuse_init: Max chip rev:     v0.99
+I (190) efuse_init: Chip rev:         v0.2
+I (190) heap_init: Initializing. RAM available for dynamic allocation:
+I (190) heap_init: At 3FCA35F0 len 00046120 (280 KiB): RAM
+I (190) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+I (191) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+I (191) heap_init: At 600FE11C len 00001ECC (7 KiB): RTCRAM
+I (192) spi_flash: detected chip: boya
+I (192) spi_flash: flash io: qio
+W (192) spi_flash: Detected size(16384k) larger than the size in the binary image header(4096k). Using the size in the binary image header.
+W (193) rmt(legacy): legacy driver is deprecated, please migrate to `driver/rmt_tx.h` and/or `driver/rmt_rx.h`
+I (193) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (194) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (194) main_task: Started on CPU0
+I (242) main_task: Calling app_main()
+[5n
+I (748) pp: pp rom version: e7ae62f
+I (749) net80211: net80211 rom version: e7ae62f
+I (751) wifi:wifi driver task: 3fcaea7c, prio:23, stack:6656, core=0
+I (753) wifi:wifi firmware version: d23f80a
+I (754) wifi:wifi certification version: v7.0
+I (754) wifi:config NVS flash: enabled
+I (755) wifi:config nano formatting: disabled
+I (755) wifi:Init data frame dynamic rx buffer num: 32
+I (756) wifi:Init static rx mgmt buffer num: 5
+I (757) wifi:Init management short buffer num: 32
+I (757) wifi:Init dynamic tx buffer num: 32
+I (758) wifi:Init static tx FG buffer num: 2
+I (758) wifi:Init static rx buffer size: 2212
+I (759) wifi:Init static rx buffer num: 10
+I (759) wifi:Init dynamic rx buffer num: 32
+I (760) wifi_init: rx ba win: 6
+I (761) wifi_init: accept mbox: 6
+I (761) wifi_init: tcpip mbox: 32
+I (761) wifi_init: udp mbox: 6
+I (762) wifi_init: tcp mbox: 6
+I (762) wifi_init: tcp tx win: 5760
+I (763) wifi_init: tcp rx win: 5760
+I (763) wifi_init: tcp mss: 1440
+I (763) wifi_init: WiFi IRAM OP enabled
+I (764) wifi_init: WiFi RX IRAM OP enabled
+I (765) phy_init: phy_version 680,a6008b2,Jun  4 2024,16:41:10
+I (793) wifi:mode : sta (fc:01:2c:d1:71:60)
+I (794) wifi:enable tsf
+I (795) wifi:Set ps type: 0, coexist: 0
+I (796) wifi:ifx:0, phymode(new:2, sta nvs: 3 ap nvs: 3)
+I (797) wifi:enable tsf
+I (799) wifi:ic_enable_sniffer
+Type 'help' to get the list of commands.
+Use UP/DOWN arrows to navigate through command history.
+Press TAB when typing command name to auto-complete.
+Your terminal application does not support escape sequences.
+Line editing and history features are disabled.
+On Windows, try using Putty instead.
+csi> I (805) esp_radar: CSI_RADAR Version: 0.2.0, Compile time: May 17 2024 - 17:51:42
+I (806) esp_radar: [esp_radar_start, 994] csi_recv_interval: 10, csi_handle_time: 250, csi_handle_window: 50, csi_handle_buffer: 70
+I (808) main_task: Returned from app_main()
+radar --csi_output_type LLFT --csi_output_format base64
+csi>
+csi>
+wifi_config --ssid "SmartSence" --password Rcall2025Rcall
+W (27405) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+I (28612) wifi:new:<8,0>, old:<11,2>, ap:<255,255>, sta:<8,0>, prof:1, snd_ch_cfg:0x0
+I (28613) wifi:state: init -> auth (0xb0)
+I (28617) wifi:state: auth -> assoc (0x0)
+I (28630) wifi:state: assoc -> run (0x10)
+I (28914) wifi:connected with SmartSence, aid = 12, channel 8, BW20, bssid = 50:ff:20:3b:10:ed
+I (28915) wifi:security: WPA2-PSK, phy: bg, rssi: -55
+I (28916) wifi:pm start, type: 0
+I (28916) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+I (28917) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000
+I (28919) wifi_cmd: Connected to SmartSence (bssid: 50:ff:20:3b:10:ed, channel: 8)
+I (28940) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+I (30228) esp_netif_handlers: sta ip: 192.168.1.41, mask: 255.255.255.0, gw: 192.168.1.1
+I (30229) wifi:ic_disable_sniffer
+I (30230) app_main: Send null data to router
+csi> W (30230) app_main: null_data, destination_address: 50:ff:20:3b:10:ed, source_address: fc:01:2c:d1:71:60, broadcast_address: 50:ff:20:3b:10:ed
+csi> W (30262) esp_radar: time_tamp: 30262, end: 30262, last: 0, num: 0
+I (30767) esp_radar: time: 500/5, free_heap: 232208, num: 0, rssi: -57, gain: 55/-51, wander: 0.000000, jitter: 0.000000, window: 44, begin: 0, end: 44, freq: 88Hz
+I (31028) esp_radar: time: 500/6, free_heap: 232184, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000000, window: 48, begin: 22, end: 0, freq: 96Hz
+I (31299) esp_radar: time: 507/6, free_heap: 232184, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000000, window: 49, begin: 46, end: 25, freq: 96Hz
+I (31532) esp_radar: time: 505/5, free_heap: 229184, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000010, window: 47, begin: 0, end: 47, freq: 93Hz
+I (31790) esp_radar: time: 512/7, free_heap: 231976, num: 0, rssi: -56, gain: 57/-61, wander: 0.000000, jitter: 0.000055, window: 48, begin: 23, end: 1, freq: 93Hz
+I (32051) esp_radar: time: 520/4, free_heap: 231648, num: 0, rssi: -58, gain: 57/-57, wander: 0.000000, jitter: 0.000042, window: 43, begin: 47, end: 20, freq: 82Hz
+I (32258) esp_radar: time: 504/6, free_heap: 231976, num: 0, rssi: -57, gain: 58/-63, wander: 0.000000, jitter: 0.000083, window: 48, begin: 68, end: 46, freq: 95Hz
+I (32550) esp_radar: time: 493/7, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000044, window: 50, begin: 22, end: 2, freq: 101Hz
+I (32768) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000088, window: 45, begin: 47, end: 22, freq: 90Hz
+I (33018) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000190, window: 47, begin: 69, end: 46, freq: 94Hz
+I (33280) esp_radar: time: 514/5, free_heap: 228484, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000096, window: 41, begin: 22, end: 63, freq: 79Hz
+I (33480) esp_radar: time: 502/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000262, window: 47, begin: 42, end: 19, freq: 93Hz
+I (33788) esp_radar: time: 503/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000294, window: 47, begin: 65, end: 42, freq: 93Hz
+I (33967) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000458, window: 38, begin: 18, end: 56, freq: 75Hz
+I (34226) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000730, window: 39, begin: 37, end: 6, freq: 77Hz
+I (34478) esp_radar: time: 510/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-62, wander: 0.000000, jitter: 0.001406, window: 43, begin: 56, end: 29, freq: 84Hz
+I (34747) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 56/-54, wander: 0.000000, jitter: 0.000959, window: 42, begin: 7, end: 49, freq: 84Hz
+I (34967) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 55/-49, wander: 0.000000, jitter: 0.000863, window: 38, begin: 28, end: 66, freq: 76Hz
+I (35227) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000181, window: 41, begin: 47, end: 18, freq: 82Hz
+I (35491) esp_radar: time: 513/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000126, window: 46, begin: 67, end: 43, freq: 89Hz
+I (35752) esp_radar: time: 507/3, free_heap: 231628, num: 0, rssi: -57, gain: 58/-63, wander: 0.000000, jitter: 0.000132, window: 39, begin: 20, end: 59, freq: 76Hz
+I (35947) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-60, wander: 0.000000, jitter: 0.000292, window: 40, begin: 39, end: 9, freq: 80Hz
+I (36268) esp_radar: time: 513/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-62, wander: 0.000000, jitter: 0.000072, window: 47, begin: 59, end: 36, freq: 91Hz
+I (36477) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000019, window: 42, begin: 12, end: 54, freq: 84Hz
+I (36729) esp_radar: time: 503/4, free_heap: 231976, num: 0, rssi: -57, gain: 55/-52, wander: 0.000000, jitter: 0.000073, window: 42, begin: 33, end: 5, freq: 83Hz
+I (36978) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 55/-51, wander: 0.000000, jitter: 0.000093, window: 44, begin: 54, end: 28, freq: 88Hz
+I (37241) esp_radar: time: 503/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-56, wander: 0.000000, jitter: 0.000196, window: 44, begin: 6, end: 50, freq: 87Hz
+I (37510) esp_radar: time: 533/5, free_heap: 231484, num: 0, rssi: -57, gain: 57/-62, wander: 0.000000, jitter: 0.000258, window: 44, begin: 28, end: 2, freq: 82Hz
+I (37747) esp_radar: time: 507/5, free_heap: 231976, num: 0, rssi: -58, gain: 56/-53, wander: 0.000000, jitter: 0.000109, window: 45, begin: 50, end: 25, freq: 88Hz
+I (38018) esp_radar: time: 507/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000466, window: 45, begin: 2, end: 47, freq: 88Hz
+I (38247) esp_radar: time: 509/5, free_heap: 231976, num: 0, rssi: -56, gain: 57/-62, wander: 0.000000, jitter: 0.000067, window: 43, begin: 24, end: 67, freq: 84Hz
+I (38488) esp_radar: time: 501/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-56, wander: 0.000000, jitter: 0.000483, window: 43, begin: 45, end: 18, freq: 85Hz
+I (38737) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 56/-54, wander: 0.000000, jitter: 0.000280, window: 43, begin: 66, end: 39, freq: 86Hz
+I (39012) esp_radar: time: 535/4, free_heap: 228348, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000404, window: 38, begin: 17, end: 55, freq: 71Hz
+I (39197) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.005903, window: 41, begin: 36, end: 7, freq: 82Hz
+I (39519) esp_radar: time: 501/7, free_heap: 231976, num: 0, rssi: -57, gain: 56/-54, wander: 0.000000, jitter: 0.006030, window: 49, begin: 56, end: 35, freq: 97Hz
+I (39727) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-62, wander: 0.000000, jitter: 0.000528, window: 41, begin: 10, end: 51, freq: 81Hz
+I (39936) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -58, gain: 56/-55, wander: 0.000000, jitter: 0.000163, window: 38, begin: 30, end: 68, freq: 76Hz
+I (40216) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -59, gain: 58/-54, wander: 0.000000, jitter: 0.001055, window: 43, begin: 49, end: 22, freq: 84Hz
+I (40477) esp_radar: time: 509/5, free_heap: 231976, num: 0, rssi: -58, gain: 57/-55, wander: 0.000000, jitter: 0.000169, window: 43, begin: 0, end: 43, freq: 84Hz
+I (40706) esp_radar: time: 508/4, free_heap: 231976, num: 0, rssi: -58, gain: 56/-55, wander: 0.000000, jitter: 0.000209, window: 41, begin: 21, end: 62, freq: 80Hz
+I (40973) esp_radar: time: 517/4, free_heap: 231812, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000157, window: 42, begin: 41, end: 13, freq: 81Hz
+I (41247) esp_radar: time: 540/5, free_heap: 231156, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000090, window: 41, begin: 62, end: 33, freq: 75Hz
+I (41449) esp_radar: time: 500/7, free_heap: 231976, num: 0, rssi: -59, gain: 59/-59, wander: 0.000000, jitter: 0.010161, window: 45, begin: 12, end: 57, freq: 90Hz
+I (41720) esp_radar: time: 464/8, free_heap: 231976, num: 0, rssi: -60, gain: 59/-58, wander: 0.000000, jitter: 0.021040, window: 50, begin: 34, end: 14, freq: 107Hz
+I (41968) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -60, gain: 60/-59, wander: 0.000000, jitter: 0.006654, window: 48, begin: 59, end: 37, freq: 96Hz
+I (42207) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -64, gain: 62/-53, wander: 0.000000, jitter: 0.001711, window: 44, begin: 13, end: 57, freq: 88Hz
+I (42502) esp_radar: time: 552/5, free_heap: 231812, num: 0, rssi: -65, gain: 62/-46, wander: 0.000000, jitter: 0.012435, window: 39, begin: 35, end: 4, freq: 70Hz
+I (42686) esp_radar: time: 512/3, free_heap: 231976, num: 0, rssi: -65, gain: 63/-52, wander: 0.000000, jitter: 0.033393, window: 26, begin: 54, end: 10, freq: 50Hz
+I (42834) esp_radar: time: 500/2, free_heap: 231976, num: 0, rssi: -64, gain: 62/-51, wander: 0.000000, jitter: 0.053616, window: 19, begin: 67, end: 16, freq: 38Hz
+I (43076) esp_radar: time: 510/2, free_heap: 231976, num: 0, rssi: -58, gain: 57/-58, wander: 0.000000, jitter: 0.011820, window: 23, begin: 6, end: 29, freq: 45Hz
+I (43367) esp_radar: time: 504/5, free_heap: 231976, num: 0, rssi: -61, gain: 58/-49, wander: 0.000000, jitter: 0.084191, window: 37, begin: 17, end: 54, freq: 73Hz
+I (43648) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 59/-62, wander: 0.000000, jitter: 0.003641, window: 46, begin: 35, end: 11, freq: 92Hz
+I (43908) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.002694, window: 48, begin: 58, end: 36, freq: 96Hz
+I (44159) esp_radar: time: 501/7, free_heap: 231976, num: 0, rssi: -57, gain: 55/-53, wander: 0.000000, jitter: 0.002601, window: 48, begin: 12, end: 60, freq: 95Hz
+I (44412) esp_radar: time: 504/7, free_heap: 231812, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000436, window: 49, begin: 36, end: 15, freq: 97Hz
+I (44669) esp_radar: time: 509/7, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000539, window: 50, begin: 60, end: 40, freq: 98Hz
+I (44922) esp_radar: time: 510/7, free_heap: 231792, num: 0, rssi: -56, gain: 56/-56, wander: 0.000000, jitter: 0.008114, window: 50, begin: 15, end: 65, freq: 98Hz
+I (45169) esp_radar: time: 500/7, free_heap: 231976, num: 0, rssi: -55, gain: 55/-57, wander: 0.000000, jitter: 0.006722, window: 50, begin: 40, end: 20, freq: 100Hz
+I (45429) esp_radar: time: 506/7, free_heap: 231976, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.002051, window: 49, begin: 65, end: 44, freq: 96Hz
+I (45660) esp_radar: time: 502/7, free_heap: 231976, num: 0, rssi: -57, gain: 56/-54, wander: 0.000000, jitter: 0.000434, window: 48, begin: 19, end: 67, freq: 95Hz
+I (45917) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.004604, window: 49, begin: 43, end: 22, freq: 98Hz
+I (46169) esp_radar: time: 509/6, free_heap: 231976, num: 0, rssi: -56, gain: 55/-56, wander: 0.000000, jitter: 0.000469, window: 46, begin: 67, end: 43, freq: 90Hz
+I (46399) esp_radar: time: 504/4, free_heap: 231648, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.002604, window: 37, begin: 20, end: 57, freq: 73Hz
+I (46607) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.005251, window: 41, begin: 38, end: 9, freq: 82Hz
+I (46918) esp_radar: time: 515/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.002590, window: 46, begin: 58, end: 34, freq: 89Hz
+I (47126) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-63, wander: 0.000000, jitter: 0.000538, window: 38, begin: 11, end: 49, freq: 76Hz
+I (47368) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.001306, window: 41, begin: 30, end: 1, freq: 82Hz
+I (47638) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-56, wander: 0.000000, jitter: 0.000441, window: 47, begin: 50, end: 27, freq: 94Hz
+I (47895) esp_radar: time: 504/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.000173, window: 49, begin: 3, end: 52, freq: 97Hz
+I (48138) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000282, window: 47, begin: 27, end: 4, freq: 94Hz
+I (48378) esp_radar: time: 509/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-62, wander: 0.000000, jitter: 0.000092, window: 47, begin: 50, end: 27, freq: 92Hz
+I (48628) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000090, window: 47, begin: 3, end: 50, freq: 94Hz
+I (48868) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000263, window: 45, begin: 26, end: 1, freq: 90Hz
+I (49122) esp_radar: time: 511/6, free_heap: 229160, num: 0, rssi: -54, gain: 54/-57, wander: 0.000000, jitter: 0.000396, window: 46, begin: 48, end: 24, freq: 90Hz
+I (49368) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -55, gain: 54/-57, wander: 0.000000, jitter: 0.000696, window: 46, begin: 1, end: 47, freq: 92Hz
+I (49628) esp_radar: time: 508/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-59, wander: 0.000000, jitter: 0.000257, window: 47, begin: 24, end: 1, freq: 92Hz
+W (49957) esp_radar: time_tamp: 175, end: 49957, last: 49782, num: 38
+W (49958) esp_radar: time_tamp: 176, end: 49958, last: 49782, num: 1
+I (49962) esp_radar: time: 420/4, free_heap: 226988, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000500, window: 37, begin: 47, end: 14, freq: 88Hz
+I (50379) esp_radar: time: 414/7, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000287, window: 50, begin: 16, end: 66, freq: 120Hz
+I (50586) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000124, window: 42, begin: 41, end: 13, freq: 84Hz
+I (50848) esp_radar: time: 509/6, free_heap: 231976, num: 0, rssi: -58, gain: 56/-51, wander: 0.000000, jitter: 0.000462, window: 45, begin: 62, end: 37, freq: 88Hz
+I (51097) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000364, window: 42, begin: 14, end: 56, freq: 84Hz
+I (51325) esp_radar: time: 500/3, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000418, window: 37, begin: 35, end: 2, freq: 74Hz
+I (51578) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000029, window: 38, begin: 53, end: 21, freq: 74Hz
+I (51829) esp_radar: time: 503/4, free_heap: 231976, num: 0, rssi: -58, gain: 57/-56, wander: 0.000000, jitter: 0.000134, window: 41, begin: 2, end: 43, freq: 81Hz
+I (52108) esp_radar: time: 521/6, free_heap: 231976, num: 0, rssi: -57, gain: 55/-53, wander: 0.000000, jitter: 0.000034, window: 44, begin: 22, end: 66, freq: 84Hz
+I (52337) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-57, wander: 0.000000, jitter: 0.000145, window: 41, begin: 44, end: 15, freq: 82Hz
+I (52567) esp_radar: time: 501/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-56, wander: 0.000000, jitter: 0.000123, window: 39, begin: 64, end: 33, freq: 77Hz
+W (52803) esp_radar: time_tamp: 131, end: 52803, last: 52672, num: 30
+W (52805) esp_radar: time_tamp: 133, end: 52805, last: 52672, num: 1
+I (52806) esp_radar: time: 370/2, free_heap: 230500, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000270, window: 29, begin: 13, end: 42, freq: 78Hz
+I (53279) esp_radar: time: 467/7, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000147, window: 50, begin: 44, end: 24, freq: 107Hz
+I (53477) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000191, window: 41, begin: 69, end: 40, freq: 82Hz
+I (53731) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -58, gain: 56/-52, wander: 0.000000, jitter: 0.000017, window: 43, begin: 19, end: 62, freq: 85Hz
+I (53978) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 56/-56, wander: 0.000000, jitter: 0.000289, window: 46, begin: 40, end: 16, freq: 92Hz
+I (54240) esp_radar: time: 502/6, free_heap: 231976, num: 0, rssi: -57, gain: 56/-54, wander: 0.000000, jitter: 0.000289, window: 46, begin: 63, end: 39, freq: 91Hz
+I (54476) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000292, window: 40, begin: 16, end: 56, freq: 80Hz
+I (54706) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000017, window: 40, begin: 36, end: 6, freq: 80Hz
+I (54977) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 55/-53, wander: 0.000000, jitter: 0.000066, window: 42, begin: 56, end: 28, freq: 84Hz
+I (55216) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 56/-58, wander: 0.000000, jitter: 0.000570, window: 39, begin: 7, end: 46, freq: 78Hz
+I (55471) esp_radar: time: 513/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000029, window: 42, begin: 26, end: 68, freq: 81Hz
+I (55736) esp_radar: time: 509/4, free_heap: 231976, num: 0, rssi: -58, gain: 57/-59, wander: 0.000000, jitter: 0.000008, window: 44, begin: 47, end: 21, freq: 86Hz
+I (55976) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.000027, window: 42, begin: 69, end: 41, freq: 83Hz
+I (56237) esp_radar: time: 510/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000111, window: 43, begin: 20, end: 63, freq: 84Hz
+I (56481) esp_radar: time: 504/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000415, window: 39, begin: 41, end: 10, freq: 77Hz
+I (56698) esp_radar: time: 502/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-62, wander: 0.000000, jitter: 0.000051, window: 41, begin: 60, end: 31, freq: 81Hz
+I (56988) esp_radar: time: 505/6, free_heap: 231976, num: 0, rssi: -57, gain: 55/-50, wander: 0.000000, jitter: 0.000074, window: 47, begin: 10, end: 57, freq: 93Hz
+I (57227) esp_radar: time: 510/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000169, window: 45, begin: 33, end: 8, freq: 88Hz
+I (57466) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 56/-56, wander: 0.000000, jitter: 0.000114, window: 41, begin: 55, end: 26, freq: 82Hz
+I (57686) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000102, window: 40, begin: 5, end: 45, freq: 80Hz
+I (57957) esp_radar: time: 501/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000046, window: 40, begin: 25, end: 65, freq: 79Hz
+I (58186) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000266, window: 36, begin: 45, end: 11, freq: 72Hz
+I (58428) esp_radar: time: 511/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000117, window: 40, begin: 63, end: 33, freq: 78Hz
+I (58707) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 57/-59, wander: 0.000000, jitter: 0.000277, window: 43, begin: 13, end: 56, freq: 86Hz
+I (58947) esp_radar: time: 509/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000081, window: 41, begin: 34, end: 5, freq: 80Hz
+I (59187) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000084, window: 41, begin: 54, end: 25, freq: 82Hz
+I (59437) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 57/-57, wander: 0.000000, jitter: 0.000072, window: 43, begin: 4, end: 47, freq: 86Hz
+I (59688) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.001233, window: 45, begin: 25, end: 0, freq: 90Hz
+I (59938) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-56, wander: 0.000000, jitter: 0.006082, window: 47, begin: 47, end: 24, freq: 94Hz
+I (60189) esp_radar: time: 501/7, free_heap: 231976, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.002318, window: 47, begin: 0, end: 47, freq: 93Hz
+I (60428) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 55/-54, wander: 0.000000, jitter: 0.001760, window: 48, begin: 23, end: 1, freq: 96Hz
+I (60690) esp_radar: time: 500/7, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.005445, window: 50, begin: 47, end: 27, freq: 100Hz
+I (60938) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000379, window: 46, begin: 2, end: 48, freq: 92Hz
+I (61167) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.001038, window: 43, begin: 25, end: 68, freq: 86Hz
+I (61417) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 55/-52, wander: 0.000000, jitter: 0.000094, window: 44, begin: 46, end: 20, freq: 88Hz
+I (61676) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-62, wander: 0.000000, jitter: 0.000032, window: 43, begin: 68, end: 41, freq: 84Hz
+I (61921) esp_radar: time: 512/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000092, window: 40, begin: 19, end: 59, freq: 78Hz
+I (62145) esp_radar: time: 500/3, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000108, window: 37, begin: 39, end: 6, freq: 74Hz
+I (62386) esp_radar: time: 501/3, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000278, window: 36, begin: 57, end: 23, freq: 71Hz
+I (62639) esp_radar: time: 503/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000486, window: 37, begin: 5, end: 42, freq: 73Hz
+I (62896) esp_radar: time: 509/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000359, window: 39, begin: 23, end: 62, freq: 76Hz
+I (63148) esp_radar: time: 507/5, free_heap: 231976, num: 0, rssi: -58, gain: 57/-56, wander: 0.000000, jitter: 0.000097, window: 42, begin: 42, end: 14, freq: 82Hz
+I (63408) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000101, window: 45, begin: 63, end: 38, freq: 90Hz
+I (63678) esp_radar: time: 522/4, free_heap: 231976, num: 0, rssi: -56, gain: 55/-54, wander: 0.000000, jitter: 0.000302, window: 42, begin: 15, end: 57, freq: 80Hz
+I (63885) esp_radar: time: 506/3, free_heap: 231976, num: 0, rssi: -58, gain: 57/-55, wander: 0.000000, jitter: 0.000028, window: 35, begin: 36, end: 1, freq: 69Hz
+I (64115) esp_radar: time: 500/3, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000477, window: 32, begin: 53, end: 15, freq: 64Hz
+I (64367) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-55, wander: 0.000000, jitter: 0.004517, window: 41, begin: 69, end: 40, freq: 82Hz
+I (64667) esp_radar: time: 510/5, free_heap: 231976, num: 0, rssi: -56, gain: 55/-57, wander: 0.000000, jitter: 0.001993, window: 47, begin: 19, end: 66, freq: 92Hz
+I (64897) esp_radar: time: 501/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.002778, window: 41, begin: 42, end: 13, freq: 81Hz
+I (65116) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.003129, window: 35, begin: 62, end: 27, freq: 70Hz
+I (65356) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -55, gain: 56/-63, wander: 0.000000, jitter: 0.000646, window: 38, begin: 9, end: 47, freq: 74Hz
+I (65637) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000117, window: 41, begin: 28, end: 69, freq: 82Hz
+I (65866) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000213, window: 39, begin: 48, end: 17, freq: 78Hz
+I (66120) esp_radar: time: 504/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000081, window: 42, begin: 67, end: 39, freq: 83Hz
+I (66377) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000145, window: 42, begin: 18, end: 60, freq: 84Hz
+I (66637) esp_radar: time: 516/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000091, window: 42, begin: 39, end: 11, freq: 81Hz
+I (66876) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000077, window: 43, begin: 60, end: 33, freq: 86Hz
+I (67139) esp_radar: time: 502/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000133, window: 44, begin: 11, end: 55, freq: 87Hz
+I (67376) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000029, window: 41, begin: 33, end: 4, freq: 82Hz
+W (67598) esp_radar: time_tamp: 147, end: 67599, last: 67452, num: 28
+W (67601) esp_radar: time_tamp: 149, end: 67601, last: 67452, num: 1
+I (67602) esp_radar: time: 350/3, free_heap: 227016, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000109, window: 27, begin: 53, end: 10, freq: 77Hz
+I (68018) esp_radar: time: 411/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000310, window: 50, begin: 12, end: 62, freq: 121Hz
+I (68236) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000398, window: 44, begin: 37, end: 11, freq: 88Hz
+I (68477) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-59, wander: 0.000000, jitter: 0.000028, window: 40, begin: 59, end: 29, freq: 80Hz
+I (68707) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000361, window: 43, begin: 9, end: 52, freq: 86Hz
+I (68988) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000064, window: 46, begin: 30, end: 6, freq: 92Hz
+I (69218) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -56, gain: 57/-62, wander: 0.000000, jitter: 0.000093, window: 45, begin: 53, end: 28, freq: 89Hz
+I (69478) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-62, wander: 0.000000, jitter: 0.000080, window: 48, begin: 5, end: 53, freq: 96Hz
+I (69730) esp_radar: time: 503/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000129, window: 44, begin: 29, end: 3, freq: 87Hz
+I (69957) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 54/-48, wander: 0.000000, jitter: 0.000152, window: 41, begin: 51, end: 22, freq: 82Hz
+I (70209) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000047, window: 43, begin: 1, end: 44, freq: 85Hz
+I (70458) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000019, window: 46, begin: 22, end: 68, freq: 92Hz
+I (70730) esp_radar: time: 511/6, free_heap: 231976, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.000414, window: 48, begin: 45, end: 23, freq: 93Hz
+I (70977) esp_radar: time: 509/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000048, window: 45, begin: 69, end: 44, freq: 88Hz
+I (71197) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000070, window: 42, begin: 21, end: 63, freq: 84Hz
+I (71470) esp_radar: time: 512/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000033, window: 40, begin: 42, end: 12, freq: 78Hz
+I (71686) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000291, window: 39, begin: 62, end: 31, freq: 78Hz
+I (71947) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000116, window: 44, begin: 11, end: 55, freq: 88Hz
+I (72227) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000103, window: 48, begin: 33, end: 11, freq: 96Hz
+I (72543) esp_radar: time: 576/4, free_heap: 231812, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000319, window: 44, begin: 57, end: 31, freq: 76Hz
+I (72709) esp_radar: time: 502/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000230, window: 45, begin: 9, end: 54, freq: 89Hz
+I (73038) esp_radar: time: 493/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000079, window: 50, begin: 31, end: 11, freq: 101Hz
+I (73238) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000342, window: 45, begin: 56, end: 31, freq: 90Hz
+I (73489) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000062, window: 44, begin: 8, end: 52, freq: 87Hz
+I (73727) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 57/-63, wander: 0.000000, jitter: 0.000319, window: 44, begin: 30, end: 4, freq: 88Hz
+I (73998) esp_radar: time: 509/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000025, window: 45, begin: 52, end: 27, freq: 88Hz
+I (74236) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -56, gain: 54/-50, wander: 0.000000, jitter: 0.000369, window: 41, begin: 4, end: 45, freq: 80Hz
+I (74466) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000069, window: 39, begin: 24, end: 63, freq: 78Hz
+I (74721) esp_radar: time: 514/4, free_heap: 231976, num: 0, rssi: -55, gain: 54/-58, wander: 0.000000, jitter: 0.000065, window: 43, begin: 43, end: 16, freq: 83Hz
+I (74978) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 55/-52, wander: 0.000000, jitter: 0.002242, window: 46, begin: 64, end: 40, freq: 92Hz
+I (75228) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.001865, window: 45, begin: 17, end: 62, freq: 90Hz
+I (75467) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-62, wander: 0.000000, jitter: 0.000549, window: 42, begin: 39, end: 11, freq: 84Hz
+I (75707) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.002568, window: 42, begin: 60, end: 32, freq: 84Hz
+I (75967) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000077, window: 44, begin: 11, end: 55, freq: 88Hz
+I (76247) esp_radar: time: 531/4, free_heap: 231812, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.000051, window: 42, begin: 33, end: 5, freq: 79Hz
+I (76463) esp_radar: time: 506/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000157, window: 43, begin: 54, end: 27, freq: 84Hz
+I (76759) esp_radar: time: 510/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000012, window: 47, begin: 5, end: 52, freq: 92Hz
+I (76967) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.000059, window: 43, begin: 28, end: 1, freq: 86Hz
+I (77218) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000077, window: 45, begin: 49, end: 24, freq: 90Hz
+I (77468) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000197, window: 45, begin: 1, end: 46, freq: 90Hz
+I (77707) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000022, window: 42, begin: 23, end: 65, freq: 83Hz
+I (77947) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 55/-51, wander: 0.000000, jitter: 0.000154, window: 41, begin: 44, end: 15, freq: 82Hz
+I (78209) esp_radar: time: 503/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000067, window: 46, begin: 64, end: 40, freq: 91Hz
+I (78478) esp_radar: time: 509/6, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000055, window: 48, begin: 17, end: 65, freq: 94Hz
+I (78727) esp_radar: time: 509/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000198, window: 43, begin: 41, end: 14, freq: 84Hz
+I (78947) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000050, window: 39, begin: 62, end: 31, freq: 77Hz
+I (79186) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 56/-58, wander: 0.000000, jitter: 0.000061, window: 44, begin: 11, end: 55, freq: 88Hz
+I (79468) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000516, window: 47, begin: 33, end: 10, freq: 93Hz
+I (79698) esp_radar: time: 502/4, free_heap: 231976, num: 0, rssi: -58, gain: 57/-55, wander: 0.000000, jitter: 0.000120, window: 43, begin: 56, end: 29, freq: 85Hz
+I (79917) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000176, window: 41, begin: 7, end: 48, freq: 82Hz
+I (80176) esp_radar: time: 509/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000384, window: 39, begin: 27, end: 66, freq: 76Hz
+I (80396) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.001907, window: 39, begin: 46, end: 15, freq: 78Hz
+I (80662) esp_radar: time: 504/6, free_heap: 231812, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.002240, window: 46, begin: 65, end: 41, freq: 91Hz
+I (80928) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000276, window: 48, begin: 18, end: 66, freq: 96Hz
+I (81168) esp_radar: time: 502/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000224, window: 39, begin: 42, end: 11, freq: 77Hz
+I (81377) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000947, window: 40, begin: 61, end: 31, freq: 78Hz
+I (81692) esp_radar: time: 523/5, free_heap: 231812, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000222, window: 43, begin: 11, end: 54, freq: 82Hz
+I (81898) esp_radar: time: 510/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000489, window: 42, begin: 32, end: 4, freq: 82Hz
+I (82121) esp_radar: time: 504/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000491, window: 43, begin: 53, end: 26, freq: 85Hz
+I (82398) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.001888, window: 45, begin: 4, end: 49, freq: 90Hz
+I (82637) esp_radar: time: 516/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.001301, window: 41, begin: 26, end: 67, freq: 79Hz
+I (82866) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000196, window: 39, begin: 46, end: 15, freq: 78Hz
+I (83105) esp_radar: time: 510/3, free_heap: 231976, num: 0, rssi: -57, gain: 57/-56, wander: 0.000000, jitter: 0.000503, window: 38, begin: 65, end: 33, freq: 74Hz
+I (83356) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000542, window: 40, begin: 14, end: 54, freq: 80Hz
+I (83618) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.000165, window: 36, begin: 34, end: 0, freq: 72Hz
+I (83836) esp_radar: time: 501/3, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000378, window: 32, begin: 52, end: 14, freq: 63Hz
+I (84095) esp_radar: time: 530/3, free_heap: 231976, num: 0, rssi: -58, gain: 58/-56, wander: 0.000000, jitter: 0.001660, window: 34, begin: 68, end: 32, freq: 64Hz
+I (84346) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.002359, window: 37, begin: 15, end: 52, freq: 73Hz
+I (84628) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000714, window: 45, begin: 33, end: 8, freq: 90Hz
+I (84877) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000807, window: 44, begin: 55, end: 29, freq: 88Hz
+I (85117) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -57, gain: 57/-56, wander: 0.000000, jitter: 0.000445, window: 41, begin: 7, end: 48, freq: 82Hz
+I (85361) esp_radar: time: 504/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000720, window: 40, begin: 27, end: 67, freq: 79Hz
+I (85606) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.000392, window: 40, begin: 47, end: 17, freq: 78Hz
+I (85882) esp_radar: time: 523/4, free_heap: 231792, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.000285, window: 36, begin: 67, end: 33, freq: 68Hz
+I (86066) esp_radar: time: 500/3, free_heap: 231976, num: 0, rssi: -58, gain: 56/-54, wander: 0.000000, jitter: 0.000462, window: 35, begin: 15, end: 50, freq: 70Hz
+I (86326) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-57, wander: 0.000000, jitter: 0.001354, window: 35, begin: 32, end: 67, freq: 70Hz
+I (86566) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-59, wander: 0.000000, jitter: 0.001538, window: 37, begin: 49, end: 16, freq: 72Hz
+I (86837) esp_radar: time: 510/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.001892, window: 40, begin: 67, end: 37, freq: 78Hz
+I (87117) esp_radar: time: 529/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-58, wander: 0.000000, jitter: 0.001255, window: 42, begin: 17, end: 59, freq: 79Hz
+I (87358) esp_radar: time: 512/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000640, window: 38, begin: 38, end: 6, freq: 74Hz
+I (87575) esp_radar: time: 500/3, free_heap: 231976, num: 0, rssi: -58, gain: 56/-54, wander: 0.000000, jitter: 0.001524, window: 38, begin: 57, end: 25, freq: 76Hz
+I (87867) esp_radar: time: 508/5, free_heap: 231976, num: 0, rssi: -57, gain: 56/-55, wander: 0.000000, jitter: 0.000209, window: 42, begin: 6, end: 48, freq: 82Hz
+I (88106) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -58, gain: 56/-52, wander: 0.000000, jitter: 0.000436, window: 37, begin: 27, end: 64, freq: 72Hz
+I (88340) esp_radar: time: 506/3, free_heap: 231976, num: 0, rssi: -58, gain: 57/-56, wander: 0.000000, jitter: 0.000093, window: 34, begin: 45, end: 9, freq: 67Hz
+I (88566) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -58, gain: 58/-62, wander: 0.000000, jitter: 0.000168, window: 39, begin: 62, end: 31, freq: 78Hz
+I (88867) esp_radar: time: 510/5, free_heap: 231976, num: 0, rssi: -58, gain: 58/-57, wander: 0.000000, jitter: 0.000061, window: 40, begin: 11, end: 51, freq: 78Hz
+I (89085) esp_radar: time: 520/3, free_heap: 231976, num: 0, rssi: -57, gain: 57/-60, wander: 0.000000, jitter: 0.000175, window: 35, begin: 31, end: 66, freq: 67Hz
+I (89325) esp_radar: time: 500/3, free_heap: 231976, num: 0, rssi: -58, gain: 58/-61, wander: 0.000000, jitter: 0.000218, window: 35, begin: 48, end: 13, freq: 70Hz
+I (89557) esp_radar: time: 501/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-61, wander: 0.000000, jitter: 0.000146, window: 36, begin: 65, end: 31, freq: 71Hz
+I (89826) esp_radar: time: 500/4, free_heap: 231976, num: 0, rssi: -57, gain: 57/-59, wander: 0.000000, jitter: 0.001053, window: 36, begin: 13, end: 49, freq: 72Hz
+I (90083) esp_radar: time: 526/4, free_heap: 231976, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.001284, window: 33, begin: 31, end: 64, freq: 62Hz
+I (90316) esp_radar: time: 510/4, free_heap: 231976, num: 0, rssi: -56, gain: 56/-55, wander: 0.000000, jitter: 0.002272, window: 39, begin: 47, end: 16, freq: 76Hz
+I (90609) esp_radar: time: 508/7, free_heap: 231976, num: 0, rssi: -56, gain: 56/-56, wander: 0.000000, jitter: 0.003785, window: 49, begin: 66, end: 45, freq: 96Hz
+I (90849) esp_radar: time: 490/7, free_heap: 231976, num: 0, rssi: -55, gain: 55/-56, wander: 0.000000, jitter: 0.001986, window: 50, begin: 20, end: 0, freq: 102Hz
+I (91109) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.003763, window: 48, begin: 45, end: 23, freq: 95Hz
+I (91337) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 55/-57, wander: 0.000000, jitter: 0.000702, window: 42, begin: 69, end: 41, freq: 84Hz
+I (91567) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 54/-51, wander: 0.000000, jitter: 0.001974, window: 41, begin: 20, end: 61, freq: 82Hz
+I (91838) esp_radar: time: 509/6, free_heap: 231976, num: 0, rssi: -56, gain: 54/-51, wander: 0.000000, jitter: 0.003152, window: 47, begin: 40, end: 17, freq: 92Hz
+I (92093) esp_radar: time: 504/6, free_heap: 231976, num: 0, rssi: -56, gain: 54/-51, wander: 0.000000, jitter: 0.000201, window: 46, begin: 63, end: 39, freq: 91Hz
+I (92327) esp_radar: time: 500/5, free_heap: 231976, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000422, window: 45, begin: 16, end: 61, freq: 90Hz
+I (92578) esp_radar: time: 501/6, free_heap: 231976, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000176, window: 47, begin: 38, end: 15, freq: 93Hz
+I (92828) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000084, window: 47, begin: 61, end: 38, freq: 94Hz
+I (93068) esp_radar: time: 501/5, free_heap: 231976, num: 0, rssi: -55, gain: 53/-52, wander: 0.000000, jitter: 0.000286, window: 46, begin: 14, end: 60, freq: 91Hz
+I (93318) esp_radar: time: 500/6, free_heap: 231976, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000128, window: 47, begin: 37, end: 14, freq: 94Hz
+I (93579) esp_radar: time: 508/7, free_heap: 231976, num: 0, rssi: -55, gain: 53/-51, wander: 0.000000, jitter: 0.000195, window: 49, begin: 60, end: 39, freq: 96Hz
+restart
+I (98897) system_cmd: Restarting
+I (98897) wifi:state: run -> init (0x0)
+I (98898) wifi:pm stop, total sleep time: 0 us / 69982027 us
+I (98899) wifi:new:<8,0>, old:<8,0>, ap:<255,255>, sta:<8,0>, prof:1, snd_ch_cfg:0x0
+W (98901) app_main: Wi-Fi disconnected
+I (98902) wifi_cmd: sta disconnect, s_reconnect...
+I (98930) wifi:flush txq
+I (98930) wifi:stop sw txq
+I (98930) wifi:lmac stop hw txq
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          I (31) boot: ESP-IDF v5.4-552-ge37d33cc1c-dirty 2nd stage bootloader
+I (31) boot: compile time Feb 27 2026 12:40:37
+I (31) boot: Multicore bootloader
+I (32) boot: chip revision: v0.2
+I (32) boot: efuse block revision: v1.3
+I (32) qio_mode: Enabling default flash chip QIO
+I (32) boot.esp32s3: Boot SPI Speed : 80MHz
+I (32) boot.esp32s3: SPI Mode       : QIO
+I (32) boot.esp32s3: SPI Flash Size : 4MB
+I (32) boot: Enabling RNG early entropy source...
+I (33) boot: Partition Table:
+I (33) boot: ## Label            Usage          Type ST Offset   Length
+I (33) boot:  0 nvs              WiFi data        01 02 0000d000 00008000
+I (34) boot:  1 fctry            WiFi data        01 02 00015000 00004000
+I (34) boot:  2 log_status       WiFi data        01 02 00019000 00004000
+I (34) boot:  3 otadata          OTA data         01 00 0001d000 00002000
+I (35) boot:  4 phy_init         RF data          01 01 0001f000 00001000
+I (35) boot:  5 ota_0            OTA app          00 10 00020000 001ca000
+I (35) boot: End of partition table
+I (36) esp_image: segment 0: paddr=00020020 vaddr=3c0a0020 size=1e274h (123508) map
+I (55) esp_image: segment 1: paddr=0003e29c vaddr=3fc9a700 size=01d7ch (  7548) load
+I (56) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=9882ch (624684) map
+I (150) esp_image: segment 3: paddr=000d8854 vaddr=3fc9c47c size=02c54h ( 11348) load
+I (152) esp_image: segment 4: paddr=000db4b0 vaddr=40374000 size=16668h ( 91752) load
+I (170) esp_image: segment 5: paddr=000f1b20 vaddr=600fe100 size=0001ch (    28) load
+I (179) boot: Loaded app from partition at offset 0x20000
+I (179) boot: Disabling RNG early entropy source...
+I (180) cpu_start: Multicore app
+I (189) cpu_start: Pro cpu start user code
+I (189) cpu_start: cpu freq: 240000000 Hz
+I (189) app_init: Application information:
+I (189) app_init: Project name:     CSI2
+I (189) app_init: App version:      1
+I (189) app_init: Compile time:     Feb 27 2026 12:40:01
+I (189) app_init: ELF file SHA256:  80a567319...
+I (190) app_init: ESP-IDF:          v5.4-552-ge37d33cc1c-dirty
+I (190) efuse_init: Min chip rev:     v0.0
+I (190) efuse_init: Max chip rev:     v0.99
+I (190) efuse_init: Chip rev:         v0.2
+I (191) heap_init: Initializing. RAM available for dynamic allocation:
+I (191) heap_init: At 3FCA35F0 len 00046120 (280 KiB): RAM
+I (191) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+I (192) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+I (192) heap_init: At 600FE11C len 00001ECC (7 KiB): RTCRAM
+I (193) spi_flash: detected chip: boya
+I (193) spi_flash: flash io: qio
+W (193) spi_flash: Detected size(16384k) larger than the size in the binary image header(4096k). Using the size in the binary image header.
+W (193) rmt(legacy): legacy driver is deprecated, please migrate to `driver/rmt_tx.h` and/or `driver/rmt_rx.h`
+I (194) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (194) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (195) main_task: Started on CPU0
+I (243) main_task: Calling app_main()
+[5n
+I (749) pp: pp rom version: e7ae62f
+I (750) net80211: net80211 rom version: e7ae62f
+I (752) wifi:wifi driver task: 3fcaea7c, prio:23, stack:6656, core=0
+I (754) wifi:wifi firmware version: d23f80a
+I (755) wifi:wifi certification version: v7.0
+I (755) wifi:config NVS flash: enabled
+I (756) wifi:config nano formatting: disabled
+I (756) wifi:Init data frame dynamic rx buffer num: 32
+I (757) wifi:Init static rx mgmt buffer num: 5
+I (758) wifi:Init management short buffer num: 32
+I (758) wifi:Init dynamic tx buffer num: 32
+I (759) wifi:Init static tx FG buffer num: 2
+I (759) wifi:Init static rx buffer size: 2212
+I (760) wifi:Init static rx buffer num: 10
+I (760) wifi:Init dynamic rx buffer num: 32
+I (761) wifi_init: rx ba win: 6
+I (762) wifi_init: accept mbox: 6
+I (762) wifi_init: tcpip mbox: 32
+I (762) wifi_init: udp mbox: 6
+I (763) wifi_init: tcp mbox: 6
+I (763) wifi_init: tcp tx win: 5760
+I (764) wifi_init: tcp rx win: 5760
+I (764) wifi_init: tcp mss: 1440
+I (764) wifi_init: WiFi IRAM OP enabled
+I (765) wifi_init: WiFi RX IRAM OP enabled
+I (766) phy_init: phy_version 680,a6008b2,Jun  4 2024,16:41:10
+I (794) wifi:mode : sta (fc:01:2c:d1:71:60)
+I (795) wifi:enable tsf
+I (796) wifi:Set ps type: 0, coexist: 0
+I (798) wifi:ifx:0, phymode(new:2, sta nvs: 3 ap nvs: 3)
+I (799) wifi:enable tsf
+I (801) wifi:ic_enable_sniffer
+Type 'help' to get the list of commands.
+Use UP/DOWN arrows to navigate through command history.
+Press TAB when typing command name to auto-complete.
+Your terminal application does not support escape sequences.
+Line editing and history features are disabled.
+On Windows, try using Putty instead.
+csi> I (806) esp_radar: CSI_RADAR Version: 0.2.0, Compile time: May 17 2024 - 17:51:42
+I (808) esp_radar: [esp_radar_start, 994] csi_recv_interval: 10, csi_handle_time: 250, csi_handle_window: 50, csi_handle_buffer: 70
+I (809) main_task: Returned from app_main()
+radar --csi_output_type LLFT --csi_output_format base64
+csi>
+csi> wifi_config --ssid "SmartSence" --password Rcall2025Rcall
+W (1421) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+I (2554) wifi:new:<8,0>, old:<11,2>, ap:<255,255>, sta:<8,0>, prof:1, snd_ch_cfg:0x0
+I (2556) wifi:state: init -> auth (0xb0)
+I (2598) wifi:state: auth -> assoc (0x0)
+I (2607) wifi:state: assoc -> run (0x10)
+I (2735) wifi:connected with SmartSence, aid = 12, channel 8, BW20, bssid = 50:ff:20:3b:10:ed
+I (2736) wifi:security: WPA2-PSK, phy: bg, rssi: -53
+I (2737) wifi:pm start, type: 0
+I (2737) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+I (2738) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000
+I (2741) wifi_cmd: Connected to SmartSence (bssid: 50:ff:20:3b:10:ed, channel: 8)
+I (2816) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+I (4062) esp_netif_handlers: sta ip: 192.168.1.41, mask: 255.255.255.0, gw: 192.168.1.1
+I (4063) wifi:ic_disable_sniffer
+I (4064) app_main: Send null data to router
+csi> W (4064) app_main: null_data, destination_address: 50:ff:20:3b:10:ed, source_address: fc:01:2c:d1:71:60, broadcast_address: 50:ff:20:3b:10:ed
+csi> W (4096) esp_radar: time_tamp: 4096, end: 4096, last: 0, num: 0
+I (4638) esp_radar: time: 537/5, free_heap: 232208, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000000, window: 43, begin: 0, end: 43, freq: 80Hz
+I (4852) esp_radar: time: 500/6, free_heap: 232184, num: 0, rssi: -57, gain: 55/-50, wander: 0.000000, jitter: 0.000000, window: 46, begin: 21, end: 67, freq: 92Hz
+I (5152) esp_radar: time: 511/6, free_heap: 232184, num: 0, rssi: -56, gain: 55/-57, wander: 0.000000, jitter: 0.000000, window: 46, begin: 44, end: 20, freq: 90Hz
+I (5350) esp_radar: time: 500/4, free_heap: 232184, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000235, window: 41, begin: 67, end: 38, freq: 82Hz
+I (5613) esp_radar: time: 503/4, free_heap: 231988, num: 0, rssi: -56, gain: 56/-58, wander: 0.000000, jitter: 0.000027, window: 41, begin: 17, end: 58, freq: 81Hz
+I (5850) esp_radar: time: 510/4, free_heap: 231996, num: 0, rssi: -56, gain: 56/-56, wander: 0.000000, jitter: 0.000094, window: 39, begin: 37, end: 6, freq: 76Hz
+I (6101) esp_radar: time: 510/4, free_heap: 231996, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000152, window: 42, begin: 56, end: 28, freq: 82Hz
+I (6361) esp_radar: time: 500/5, free_heap: 231996, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000300, window: 42, begin: 7, end: 49, freq: 84Hz
+I (6612) esp_radar: time: 511/4, free_heap: 231996, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000081, window: 44, begin: 28, end: 2, freq: 86Hz
+I (6884) esp_radar: time: 514/4, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000111, window: 41, begin: 50, end: 21, freq: 79Hz
+I (7081) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000148, window: 43, begin: 0, end: 43, freq: 86Hz
+I (7392) esp_radar: time: 506/6, free_heap: 231988, num: 0, rssi: -56, gain: 55/-59, wander: 0.000000, jitter: 0.000039, window: 48, begin: 21, end: 69, freq: 94Hz
+I (7621) esp_radar: time: 507/5, free_heap: 231988, num: 0, rssi: -56, gain: 55/-56, wander: 0.000000, jitter: 0.000200, window: 43, begin: 45, end: 18, freq: 84Hz
+I (7871) esp_radar: time: 510/5, free_heap: 231988, num: 0, rssi: -55, gain: 56/-62, wander: 0.000000, jitter: 0.000184, window: 44, begin: 66, end: 40, freq: 86Hz
+I (8121) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000181, window: 42, begin: 18, end: 60, freq: 84Hz
+I (8354) esp_radar: time: 503/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000044, window: 38, begin: 39, end: 7, freq: 75Hz
+I (8610) esp_radar: time: 508/4, free_heap: 231988, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000135, window: 38, begin: 58, end: 26, freq: 74Hz
+I (8872) esp_radar: time: 518/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000082, window: 41, begin: 7, end: 48, freq: 79Hz
+I (9121) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 54/-51, wander: 0.000000, jitter: 0.000264, window: 41, begin: 27, end: 68, freq: 82Hz
+I (9350) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000217, window: 43, begin: 47, end: 20, freq: 86Hz
+I (9622) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000112, window: 45, begin: 68, end: 43, freq: 90Hz
+I (9862) esp_radar: time: 510/6, free_heap: 231996, num: 0, rssi: -54, gain: 55/-63, wander: 0.000000, jitter: 0.000141, window: 45, begin: 20, end: 65, freq: 88Hz
+I (10102) esp_radar: time: 500/6, free_heap: 231996, num: 0, rssi: -55, gain: 53/-53, wander: 0.000000, jitter: 0.000058, window: 45, begin: 42, end: 17, freq: 90Hz
+I (10340) esp_radar: time: 500/4, free_heap: 231996, num: 0, rssi: -54, gain: 54/-58, wander: 0.000000, jitter: 0.000100, window: 42, begin: 64, end: 36, freq: 84Hz
+I (10590) esp_radar: time: 508/4, free_heap: 231996, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000026, window: 39, begin: 15, end: 54, freq: 76Hz
+I (10810) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -55, gain: 53/-51, wander: 0.000000, jitter: 0.000210, window: 39, begin: 34, end: 3, freq: 78Hz
+I (11081) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000060, window: 42, begin: 53, end: 25, freq: 84Hz
+I (11323) esp_radar: time: 502/5, free_heap: 231988, num: 0, rssi: -55, gain: 56/-63, wander: 0.000000, jitter: 0.000132, window: 43, begin: 4, end: 47, freq: 85Hz
+I (11581) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 55/-59, wander: 0.000000, jitter: 0.000178, window: 44, begin: 25, end: 69, freq: 88Hz
+I (11833) esp_radar: time: 510/5, free_heap: 231988, num: 0, rssi: -56, gain: 55/-55, wander: 0.000000, jitter: 0.000050, window: 42, begin: 47, end: 19, freq: 82Hz
+I (12071) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000176, window: 40, begin: 68, end: 38, freq: 80Hz
+I (12311) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000065, window: 41, begin: 18, end: 59, freq: 82Hz
+I (12570) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -56, gain: 56/-59, wander: 0.000000, jitter: 0.000605, window: 41, begin: 38, end: 9, freq: 82Hz
+I (12800) esp_radar: time: 510/4, free_heap: 231988, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000092, window: 40, begin: 58, end: 28, freq: 78Hz
+I (13052) esp_radar: time: 501/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000158, window: 43, begin: 8, end: 51, freq: 85Hz
+I (13322) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 54/-56, wander: 0.000000, jitter: 0.000675, window: 47, begin: 29, end: 6, freq: 94Hz
+I (13574) esp_radar: time: 506/6, free_heap: 231988, num: 0, rssi: -57, gain: 54/-46, wander: 0.000000, jitter: 0.003121, window: 45, begin: 52, end: 27, freq: 88Hz
+I (13800) esp_radar: time: 508/4, free_heap: 231988, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.000850, window: 39, begin: 4, end: 43, freq: 76Hz
+I (14001) esp_radar: time: 512/3, free_heap: 231988, num: 0, rssi: -57, gain: 57/-58, wander: 0.000000, jitter: 0.002265, window: 35, begin: 23, end: 58, freq: 68Hz
+I (14292) esp_radar: time: 520/4, free_heap: 231988, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.002722, window: 36, begin: 40, end: 6, freq: 69Hz
+I (14509) esp_radar: time: 508/3, free_heap: 231988, num: 0, rssi: -56, gain: 54/-49, wander: 0.000000, jitter: 0.000149, window: 32, begin: 58, end: 20, freq: 62Hz
+I (14793) esp_radar: time: 544/3, free_heap: 231988, num: 0, rssi: -56, gain: 56/-57, wander: 0.000000, jitter: 0.000312, window: 30, begin: 4, end: 34, freq: 55Hz
+I (15000) esp_radar: time: 503/4, free_heap: 231988, num: 0, rssi: -56, gain: 55/-55, wander: 0.000000, jitter: 0.001188, window: 38, begin: 19, end: 57, freq: 75Hz
+I (15302) esp_radar: time: 504/6, free_heap: 231988, num: 0, rssi: -54, gain: 55/-59, wander: 0.000000, jitter: 0.002544, window: 47, begin: 38, end: 15, freq: 93Hz
+I (15552) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.006554, window: 47, begin: 61, end: 38, freq: 94Hz
+I (15793) esp_radar: time: 500/7, free_heap: 231988, num: 0, rssi: -55, gain: 55/-57, wander: 0.000000, jitter: 0.001119, window: 48, begin: 14, end: 62, freq: 96Hz
+I (16052) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.002544, window: 48, begin: 38, end: 16, freq: 96Hz
+I (16292) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-57, wander: 0.000000, jitter: 0.005002, window: 48, begin: 62, end: 40, freq: 96Hz
+I (16552) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -54, gain: 54/-60, wander: 0.000000, jitter: 0.000539, window: 46, begin: 16, end: 62, freq: 92Hz
+I (16781) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-62, wander: 0.000000, jitter: 0.000087, window: 44, begin: 39, end: 13, freq: 88Hz
+I (17042) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000688, window: 45, begin: 61, end: 36, freq: 90Hz
+I (17282) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 56/-62, wander: 0.000000, jitter: 0.000093, window: 44, begin: 13, end: 57, freq: 88Hz
+I (17531) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000107, window: 44, begin: 35, end: 9, freq: 88Hz
+I (17803) esp_radar: time: 521/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000187, window: 47, begin: 57, end: 34, freq: 90Hz
+I (18052) esp_radar: time: 510/6, free_heap: 231988, num: 0, rssi: -56, gain: 56/-60, wander: 0.000000, jitter: 0.000335, window: 46, begin: 10, end: 56, freq: 90Hz
+I (18282) esp_radar: time: 507/5, free_heap: 231988, num: 0, rssi: -56, gain: 59/-71, wander: 0.000000, jitter: 0.000125, window: 44, begin: 33, end: 7, freq: 86Hz
+I (18533) esp_radar: time: 502/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000178, window: 45, begin: 55, end: 30, freq: 89Hz
+I (18792) esp_radar: time: 509/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-56, wander: 0.000000, jitter: 0.000061, window: 46, begin: 7, end: 53, freq: 90Hz
+I (19041) esp_radar: time: 508/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-57, wander: 0.000000, jitter: 0.000061, window: 46, begin: 30, end: 6, freq: 90Hz
+I (19292) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000140, window: 46, begin: 53, end: 29, freq: 92Hz
+I (19542) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000178, window: 47, begin: 6, end: 53, freq: 94Hz
+I (19801) esp_radar: time: 510/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-61, wander: 0.000000, jitter: 0.000023, window: 48, begin: 29, end: 7, freq: 94Hz
+I (20041) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000068, window: 46, begin: 53, end: 29, freq: 92Hz
+I (20292) esp_radar: time: 511/5, free_heap: 231988, num: 0, rssi: -54, gain: 54/-58, wander: 0.000000, jitter: 0.000719, window: 42, begin: 6, end: 48, freq: 82Hz
+I (20523) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000430, window: 40, begin: 27, end: 67, freq: 80Hz
+I (20772) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000363, window: 41, begin: 47, end: 18, freq: 81Hz
+I (21031) esp_radar: time: 508/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000053, window: 45, begin: 67, end: 42, freq: 88Hz
+I (21282) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -55, gain: 56/-63, wander: 0.000000, jitter: 0.000181, window: 43, begin: 19, end: 62, freq: 85Hz
+I (21555) esp_radar: time: 555/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000032, window: 41, begin: 40, end: 11, freq: 73Hz
+I (21760) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -56, gain: 55/-59, wander: 0.000000, jitter: 0.000071, window: 41, begin: 60, end: 31, freq: 82Hz
+I (21990) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-56, wander: 0.000000, jitter: 0.000040, window: 40, begin: 10, end: 50, freq: 80Hz
+I (22250) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-57, wander: 0.000000, jitter: 0.000234, window: 44, begin: 30, end: 4, freq: 88Hz
+I (22512) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-61, wander: 0.000000, jitter: 0.000019, window: 46, begin: 52, end: 28, freq: 92Hz
+I (22762) esp_radar: time: 500/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000151, window: 45, begin: 5, end: 50, freq: 90Hz
+I (23012) esp_radar: time: 509/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000222, window: 45, begin: 27, end: 2, freq: 88Hz
+I (23252) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000202, window: 43, begin: 49, end: 22, freq: 85Hz
+I (23511) esp_radar: time: 518/5, free_heap: 231988, num: 0, rssi: -56, gain: 55/-59, wander: 0.000000, jitter: 0.000107, window: 44, begin: 0, end: 44, freq: 84Hz
+I (23770) esp_radar: time: 519/4, free_heap: 231988, num: 0, rssi: -56, gain: 54/-55, wander: 0.000000, jitter: 0.000061, window: 43, begin: 22, end: 65, freq: 82Hz
+I (23990) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000053, window: 40, begin: 43, end: 13, freq: 80Hz
+I (24244) esp_radar: time: 501/6, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000151, window: 43, begin: 63, end: 36, freq: 85Hz
+I (24501) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 54/-54, wander: 0.000000, jitter: 0.000054, window: 43, begin: 14, end: 57, freq: 86Hz
+I (24733) esp_radar: time: 502/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000108, window: 42, begin: 35, end: 7, freq: 83Hz
+I (24971) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 53/-51, wander: 0.000000, jitter: 0.000044, window: 40, begin: 56, end: 26, freq: 80Hz
+I (25222) esp_radar: time: 501/4, free_heap: 231988, num: 0, rssi: -56, gain: 55/-58, wander: 0.000000, jitter: 0.000109, window: 40, begin: 6, end: 46, freq: 79Hz
+I (25472) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-58, wander: 0.000000, jitter: 0.000096, window: 44, begin: 26, end: 0, freq: 87Hz
+I (25741) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -56, gain: 56/-62, wander: 0.000000, jitter: 0.000252, window: 43, begin: 48, end: 21, freq: 86Hz
+I (25962) esp_radar: time: 509/5, free_heap: 231988, num: 0, rssi: -56, gain: 54/-50, wander: 0.000000, jitter: 0.000077, window: 42, begin: 69, end: 41, freq: 82Hz
+I (26221) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-61, wander: 0.000000, jitter: 0.000119, window: 42, begin: 20, end: 62, freq: 84Hz
+I (26471) esp_radar: time: 509/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-62, wander: 0.000000, jitter: 0.000271, window: 44, begin: 41, end: 15, freq: 86Hz
+I (26731) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-61, wander: 0.000000, jitter: 0.000061, window: 42, begin: 63, end: 35, freq: 84Hz
+I (26961) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -55, gain: 54/-58, wander: 0.000000, jitter: 0.000065, window: 39, begin: 14, end: 53, freq: 77Hz
+I (27191) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -54, gain: 53/-54, wander: 0.000000, jitter: 0.000031, window: 40, begin: 33, end: 3, freq: 80Hz
+I (27470) esp_radar: time: 509/4, free_heap: 231988, num: 0, rssi: -54, gain: 54/-59, wander: 0.000000, jitter: 0.000120, window: 42, begin: 53, end: 25, freq: 82Hz
+I (27703) esp_radar: time: 502/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000164, window: 41, begin: 4, end: 45, freq: 81Hz
+I (27952) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -54, gain: 54/-60, wander: 0.000000, jitter: 0.000133, window: 41, begin: 24, end: 65, freq: 81Hz
+I (28191) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000200, window: 44, begin: 44, end: 18, freq: 88Hz
+I (28461) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000189, window: 45, begin: 66, end: 41, freq: 90Hz
+I (28692) esp_radar: time: 501/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-59, wander: 0.000000, jitter: 0.000030, window: 42, begin: 18, end: 60, freq: 83Hz
+I (28942) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000064, window: 42, begin: 39, end: 11, freq: 84Hz
+I (29209) esp_radar: time: 516/6, free_heap: 231988, num: 0, rssi: -55, gain: 53/-54, wander: 0.000000, jitter: 0.000216, window: 46, begin: 60, end: 36, freq: 89Hz
+I (29480) esp_radar: time: 518/4, free_heap: 231988, num: 0, rssi: -54, gain: 54/-60, wander: 0.000000, jitter: 0.000129, window: 44, begin: 13, end: 57, freq: 84Hz
+I (29690) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -54, gain: 54/-61, wander: 0.000000, jitter: 0.000079, window: 39, begin: 35, end: 4, freq: 78Hz
+I (29940) esp_radar: time: 500/4, free_heap: 231988, num: 0, rssi: -55, gain: 55/-60, wander: 0.000000, jitter: 0.000130, window: 41, begin: 54, end: 25, freq: 82Hz
+I (30191) esp_radar: time: 500/5, free_heap: 231988, num: 0, rssi: -55, gain: 55/-62, wander: 0.000000, jitter: 0.000067, window: 45, begin: 4, end: 49, freq: 90Hz

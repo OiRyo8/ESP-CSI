@@ -1,0 +1,1 @@
+type,timestamp,compile_time,chip_name,chip_revision,app_revision,idf_revision,total_heap,free_heap,router_ssid,ip,port

@@ -1,0 +1,1 @@
+type,seq,timestamp,waveform_wander,wander_average,waveform_wander_threshold,someone_status,waveform_jitter,jitter_midean,waveform_jitter_threshold,move_status

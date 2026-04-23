@@ -1,0 +1,46 @@
+dependencies:
+  esp-radar:
+    dependencies:
+    - name: idf
+      version: '>=4.4.1'
+    - name: espressif/cmake_utilities
+      version: 0.*
+    source:
+      path: C:\Users\sevam\source\components\esp-radar
+      type: local
+    targets:
+    - esp32
+    - esp32s3
+    - esp32c3
+    - esp32c5
+    version: 0.2.1
+  espressif/cmake_utilities:
+    component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.1'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 0.5.3
+  espressif/ws2812_led:
+    component_hash: dba92f7239f00e8baa265ba615e98987611572d371e05a26613aa1e9810cf20f
+    dependencies: []
+    source:
+      git: https://github.com/espressif/esp-rainmaker.git
+      path: components/ws2812_led
+      type: git
+    version: ff0dd329020a52ae8cf2fb4f6800d9f8e9cc9eeb
+  idf:
+    source:
+      type: idf
+    version: 5.4.0
+direct_dependencies:
+- esp-radar
+- espressif/cmake_utilities
+- espressif/ws2812_led
+- idf
+manifest_hash: 160152c9614f2f97a9db633ea790ee6c239eb545f3728ed60c747912bba7c122
+target: esp32s3
+version: 2.0.0
