@@ -9,3 +9,4 @@
 /.vs/cmake.db
 /tools/log
 /Token.txt
+/dependencies.lock

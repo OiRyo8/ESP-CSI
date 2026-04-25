@@ -11,7 +11,11 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["-p1", "COM7", "-p2", "COM4"]
+            "args": ["-p1", "COM7", "-p2", "COM4"],
+            "env": {
+                    "PYTHONUNBUFFERED": "1",
+                    "TERM": "dumb" 
+                    }
         }
     ]
 }

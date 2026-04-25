@@ -10,6 +10,7 @@ import csv
 from io import StringIO
 import re
 import json
+import math
 
 
 # --- Константы ---
@@ -157,6 +158,8 @@ def serial_handle(queue_read, queue_write, port):
                         if not queue_read.full():
                             queue_read.put(data_dict)
                     break
+                    raw_csi_to_amp_phase()
+                    
 
             if not matched:
                 # Обработка обычных системных логов ESP32
@@ -180,6 +183,53 @@ def serial_handle(queue_read, queue_write, port):
         log_data_writer.close()
         ser.close()
 
+
+
+def raw_csi_to_amp_phase():
+# ... (ваш существующий код инициализации) ...
+
+    msg = controller.queue_read1.get() 
+    
+    if msg.get('type') == 'CSI_DATA':
+        raw_data = msg['data']
+        # Извлекаем таймстемп текущего пакета
+        timestamp = msg.get('timestamp', 'No_Time') 
+
+        amplitudes = []
+        phases = []
+
+        # Расчет амплитуды и фазы
+        for i in range(0, len(raw_data), 2):
+            I = raw_data[i]
+            Q = raw_data[i+1]
+        
+            amp = math.sqrt(I**2 + Q**2)
+            amplitudes.append(amp)
+            
+            phase = math.degrees(math.atan2(Q, I))
+            phases.append(phase)
+
+        # --- ЗАПИСЬ ДАННЫХ В ФАЙЛ ---
+        # Открываем файл в режиме дозаписи ('a' - append) для текущего пакета
+        with open(processed_file, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            
+            # Проходим по всем рассчитанным поднесущим
+            for subcarrier_index in range(len(amplitudes)):
+                # Логика пустой строки: пишем время только если это первая поднесущая (индекс 0)
+                current_time = timestamp if subcarrier_index == 0 else ""
+                
+                # Формируем строку. Рекомендуется округлять значения, 
+                # чтобы файл не разрастался до гигабайтов из-за длинных дробей
+                row_to_write = [
+                    current_time, 
+                    subcarrier_index, 
+                    round(amplitudes[subcarrier_index], 2), 
+                    round(phases[subcarrier_index], 4)
+                ]
+
+                writer.writerow(row_to_write)
+                f.flush()
 
 
 class RadarController:
@@ -212,7 +262,17 @@ class RadarController:
             cmd += f" --password {password}"
         self.send_command(cmd)
 
+
 if __name__ == "__main__":
+    processed_file = 'log/csi_processed.csv'
+    os.makedirs('log', exist_ok=True) # Убеждаемся, что папка log существует
+
+# Создаем файл и записываем заголовки (режим 'w' перезапишет старый файл при запуске)
+    with open(processed_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(["time_stamp", "number_of_subcarrier", "Amp", "Phase"])
+
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-p1', '--port1', required=True)
     parser.add_argument('-p2', '--port2', required=True)
@@ -240,7 +300,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            controller.send_command("get_csi")
+            raw_csi_to_amp_phase()
             # Чтение сообщений из очередей
             while not controller.queue_read1.empty():
                 msg = controller.queue_read1.get()
@@ -252,18 +312,19 @@ if __name__ == "__main__":
                 t = msg.get('type', 'Unknown')
                 print(f"[P2]: {t} получено")
 
-            user_input = input(">> ").strip().lower()
+            #user_input = input(">> ").strip().lower()
 
-            if user_input == "locate router":
-                controller.send_command("get_csi")
-                print("Команда отправлена.")
-            elif user_input == "exit":
-                break
-            elif user_input == "":
-                continue
-            else:
-                print(f"Неизвестная команда: {user_input}")
+            #if user_input == "locate router":
+            #    controller.send_command("get_csi")
+            #    print("Команда отправлена.")
+            #elif user_input == "exit":
+            #    break
+            #elif user_input == "":
+            #    continue
+            #else:
+            #    print(f"Неизвестная команда: {user_input}")
 
+    
     except KeyboardInterrupt:
         print("\nОстановка...")
     finally:
