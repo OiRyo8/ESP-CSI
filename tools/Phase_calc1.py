@@ -180,6 +180,8 @@ def serial_handle(queue_read, queue_write, port):
         log_data_writer.close()
         ser.close()
 
+
+
 class RadarController:
     def __init__(self, port1, port2):
         self.p1_name = port1.strip(", ")

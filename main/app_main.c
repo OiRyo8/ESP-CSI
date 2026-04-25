@@ -17,7 +17,6 @@
 #include "nvs_flash.h"
 #include "esp_err.h"
 #include "esp_console.h"
-#include "driver/uart.h"
 
 #include "esp_mac.h"
 #include "esp_wifi.h"
@@ -254,17 +253,6 @@ static int wifi_cmd_radar(int argc, char **argv)
     return ESP_OK;
 }
 
-//Флаг и комманда
-volatile bool g_send_next_packet = false;
-
-static int get_csi_cmd(int argc, char **argv)
-{
-	g_send_next_packet = true;
-	ESP_LOGI(TAG, "Command_reach");
-	
-	return 0;
-}
-
 void cmd_register_radar(void)
 {
     radar_args.train_start = arg_lit0(NULL, "train_start", "Start calibrating the 'Radar' algorithm");
@@ -304,106 +292,6 @@ void cmd_register_radar(void)
     ESP_ERROR_CHECK(esp_console_cmd_register(&radar_cmd));
 }
 
-//Регистрация команды
-void cmd_register_get_csi(void)
-{
-	const esp_console_cmd_t cmd = { 
-		.command = "get_csi",
-        .help = "Sending Q and I amplitude",
-        .hint = NULL,
-        .func = &get_csi_cmd,
-	};
-	
-	ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
-}
-
-// Определяем тип структуры один раз
-typedef struct {
-	int8_t rssi;
-	uint16_t data_len;
-} __attribute__((packed)) csi_meta_t;
-
-static void csi_data_to_binary_task(void *arg)
-{
-	const uint8_t SYNC_START[] = { 0xAA, 0xBB, 0xCC, 0xDD };
-	const uint8_t SYNC_END[] = { 0xDD, 0xCC, 0xBB, 0xAA };
-	csi_meta_t meta;
-	
-	wifi_csi_filtered_info_t *info = NULL;
-
-	while (xQueueReceive(g_csi_info_queue, &info, portMAX_DELAY)) {
-		if (info != NULL) continue;
-
-		if (g_send_next_packet) {
-			// 1. Отправляем стартовый маркер
-			uart_write_bytes(UART_NUM_0, (const char*)SYNC_START, sizeof(SYNC_START));
-
-			// 2. Отправляем метаданные (RSSI и длину данных)
-			// Мы упакуем их в структуру, чтобы на ПК было легко читать
-            
-			meta.rssi = info->rx_ctrl.rssi;
-			meta.data_len = info->valid_len;
-			uart_write_bytes(UART_NUM_0, (const char*)&meta, sizeof(meta));
-
-			// 3. Отправляем сами данные IQ
-			uart_write_bytes(UART_NUM_0, (const char*)info->valid_data, info->valid_len);
-
-			// 4. Отправляем стоп-маркер
-			uart_write_bytes(UART_NUM_0, (const char*)SYNC_END, sizeof(SYNC_END));
-
-			// Опускаем флаг (в этот раз по-настоящему)
-			g_send_next_packet = false; 
-		}
-
-		free(info);
-	}
-	vTaskDelete(NULL);
-}
-
-//получает данные из очереди, отправляет только по комманде
-static void csi_data_to_csv_task(void *arg)
-{
-	wifi_csi_filtered_info_t *info = NULL;
-	const size_t buf_size = 8 * 1024;
-	char *csv_buffer = malloc(buf_size);
-
-
-	while (xQueueReceive(g_csi_info_queue, &info, portMAX_DELAY)) {
-        
-		// Проверяем, запрашивал ли пользователь данные через команду
-		if (g_send_next_packet) {
-			int len = 0;
-			int8_t *raw_iq = (int8_t *)info->valid_data;
-			int subcarriers_count = info->valid_len / 2;
-
-			len += sprintf(csv_buffer + len, csv_buffer - len, "CSI,%d", info->rx_ctrl.rssi);
-
-			for (int i = 0; i < subcarriers_count; i++) {
-				// Записываем I и Q
-				if (len + 20 > buf_size) break;
-				len += sprintf(csv_buffer + len, csv_buffer + len, ",%d,%d", raw_iq[i * 2], raw_iq[i * 2 + 1]);
-			}
-			
-			if (len < buf_size - 1)
-			{
-				csv_buffer[len++] = '\n';
-				csv_buffer[len] = '\0';
-			}
-            
-			// Отправляем на ПК
-			printf("CSI, %d", csv_buffer, strlen(csv_buffer));
-
-			// Опускаем флаг, чтобы отправить только один пакет
-			g_send_next_packet = false; //отыскать и поменять
-		}
-
-		// Обязательно освобождаем память каждого пакета, даже если не печатали его
-		free(info);
-	}
-	free(csv_buffer);
-	vTaskDelete(NULL);
-}
-
 static void csi_data_print_task(void *arg)
 {
     wifi_csi_filtered_info_t *info = NULL;
@@ -414,7 +302,7 @@ static void csi_data_print_task(void *arg)
         size_t len = 0;
         wifi_pkt_rx_ctrl_t *rx_ctrl = &info->rx_ctrl;
 
-       if (!count) {
+        if (!count) {
             ESP_LOGI(TAG, "================ CSI RECV ================");
             len += sprintf(buffer + len, "type,sequence,timestamp,taget_seq,taget,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,agc_gain,fft_gain,len,first_word,data\n");
         }
@@ -687,7 +575,6 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 
 void app_main(void)
 {
-	esp_log_level_set("*", ESP_LOG_NONE);
     /**
      * @brief Install ws2812 driver, Used to display the status of the device
      */
@@ -727,7 +614,6 @@ void app_main(void)
     cmd_register_wifi_config();
     cmd_register_wifi_scan();
     cmd_register_radar();
-	cmd_register_get_csi();
     ESP_ERROR_CHECK(esp_console_start_repl(repl));
 
     /**
@@ -739,7 +625,7 @@ void app_main(void)
      * @brief Set the Wi-Fi radar configuration
      */
     wifi_radar_config_t radar_config = WIFI_RADAR_CONFIG_DEFAULT();
-    //radar_config.wifi_radar_cb     = wifi_radar_cb;
+    radar_config.wifi_radar_cb     = wifi_radar_cb;
     radar_config.csi_recv_interval = g_send_data_interval;
 
 #if WIFI_CSI_SEND_NULL_DATA_ENABLE
@@ -757,5 +643,5 @@ void app_main(void)
      * @brief Initialize CSI serial port printing task, Use tasks to avoid blocking wifi_csi_raw_cb
      */
     g_csi_info_queue = xQueueCreate(64, sizeof(void *));
-	xTaskCreate(csi_data_print_task, "csi_data_print", 4 * 1024, NULL, 0, NULL);
+    xTaskCreate(csi_data_print_task, "csi_data_print", 4 * 1024, NULL, 0, NULL);
 }
