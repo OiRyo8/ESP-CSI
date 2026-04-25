@@ -1,1 +1,0 @@
-type,seq,timestamp,taget_seq,taget,mac,rssi,rate,sig_mode,mcs,cwb,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel_primary,channel_secondary,local_timestamp,ant,sig_len,rx_state,agc_gain,fft_gain,len,first_word_invalid,data

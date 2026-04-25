@@ -238,6 +238,7 @@ if __name__ == "__main__":
 
     try:
         while True:
+            controller.send_command("get_csi")
             # Чтение сообщений из очередей
             while not controller.queue_read1.empty():
                 msg = controller.queue_read1.get()

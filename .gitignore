@@ -7,3 +7,5 @@
 *.vsidx
 /.vs/CSI/v17
 /.vs/cmake.db
+/tools/log
+/tools/config
