@@ -1,4 +1,5 @@
 import argparse
+import queue
 from multiprocessing import Process, Queue
 import serial
 import time
@@ -158,7 +159,6 @@ def serial_handle(queue_read, queue_write, port):
                         if not queue_read.full():
                             queue_read.put(data_dict)
                     break
-                    raw_csi_to_amp_phase()
                     
 
             if not matched:
@@ -185,51 +185,31 @@ def serial_handle(queue_read, queue_write, port):
 
 
 
-def raw_csi_to_amp_phase():
-# ... (ваш существующий код инициализации) ...
+def raw_csi_to_amp_phase(msg, processed_file):
+    # Теперь функция просто обрабатывает готовый словарь
+    raw_data = msg['data']
+    timestamp = msg.get('timestamp', 'No_Time') 
 
-    msg = controller.queue_read1.get() 
-    
-    if msg.get('type') == 'CSI_DATA':
-        raw_data = msg['data']
-        # Извлекаем таймстемп текущего пакета
-        timestamp = msg.get('timestamp', 'No_Time') 
+    amplitudes = []
+    phases = []
 
-        amplitudes = []
-        phases = []
+    for i in range(0, len(raw_data), 2):
+        I, Q = raw_data[i], raw_data[i+1]
+        amplitudes.append(math.sqrt(I**2 + Q**2))
+        phases.append(math.degrees(math.atan2(Q, I)))
 
-        # Расчет амплитуды и фазы
-        for i in range(0, len(raw_data), 2):
-            I = raw_data[i]
-            Q = raw_data[i+1]
-        
-            amp = math.sqrt(I**2 + Q**2)
-            amplitudes.append(amp)
-            
-            phase = math.degrees(math.atan2(Q, I))
-            phases.append(phase)
+    with open(processed_file, 'a', newline='', encoding='utf-8') as f:
+        line = f"{timestamp},"
+        for subcarrier_index in range(len(amplitudes)):
+            line+=f"{amplitudes[subcarrier_index]},{phases[subcarrier_index]},"
+        f.write(line + "\n")
 
-        # --- ЗАПИСЬ ДАННЫХ В ФАЙЛ ---
-        # Открываем файл в режиме дозаписи ('a' - append) для текущего пакета
-        with open(processed_file, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            
-            # Проходим по всем рассчитанным поднесущим
-            for subcarrier_index in range(len(amplitudes)):
-                # Логика пустой строки: пишем время только если это первая поднесущая (индекс 0)
-                current_time = timestamp if subcarrier_index == 0 else ""
-                
-                # Формируем строку. Рекомендуется округлять значения, 
-                # чтобы файл не разрастался до гигабайтов из-за длинных дробей
-                row_to_write = [
-                    current_time, 
-                    subcarrier_index, 
-                    round(amplitudes[subcarrier_index], 2), 
-                    round(phases[subcarrier_index], 4)
-                ]
-
-                writer.writerow(row_to_write)
-                f.flush()
+    # with open(processed_file, 'a', newline='', encoding='utf-8') as f:
+    #     writer = csv.writer(f)
+    #     for idx, amp in enumerate(amplitudes):
+    #         current_time = timestamp if idx == 0 else ""
+    #         writer.writerow([current_time, idx, round(amp, 2), round(phases[idx], 4)])
+    #     # f.flush() # Внутри 'with' flush обычно не нужен, файл закроется сам
 
 
 class RadarController:
@@ -239,8 +219,8 @@ class RadarController:
         
         self.queue_write1 = Queue(maxsize=64)
         self.queue_write2 = Queue(maxsize=64)
-        self.queue_read1 = Queue(maxsize=10) 
-        self.queue_read2 = Queue(maxsize=10)
+        self.queue_read1 = Queue(maxsize=100) 
+        self.queue_read2 = Queue(maxsize=100)
         
         self.p1 = Process(target=serial_handle, args=(self.queue_read1, self.queue_write1, self.p1_name))
         self.p2 = Process(target=serial_handle, args=(self.queue_read2, self.queue_write2, self.p2_name))
@@ -270,7 +250,7 @@ if __name__ == "__main__":
 # Создаем файл и записываем заголовки (режим 'w' перезапишет старый файл при запуске)
     with open(processed_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(["time_stamp", "number_of_subcarrier", "Amp", "Phase"])
+        writer.writerow(["time_stamp",])
 
 
     parser = argparse.ArgumentParser()
@@ -300,34 +280,48 @@ if __name__ == "__main__":
 
     try:
         while True:
-            raw_csi_to_amp_phase()
-            # Чтение сообщений из очередей
-            while not controller.queue_read1.empty():
-                msg = controller.queue_read1.get()
-                t = msg.get('type', 'Unknown')
-                print(f"[P1]: {t} получено")
+            # Пытаемся достать данные из первой очереди
+            try:
+                # Ждем данные 0.1 сек, чтобы не перегружать процессор, 
+                # но и не зависать навечно
+                msg1 = controller.queue_read1.get(timeout=0.1)
+                
+                # Теперь обрабатываем полученное сообщение
+                t = msg1.get('type', 'Unknown')
+                
+                if t == 'CSI_DATA':
+                    # Передаем уже полученное сообщение в функцию обработки
+                    raw_csi_to_amp_phase(msg1, processed_file)
+                    print(f"[P1]: {t} обработано и записано")
+                elif t == 'LOG_DATA':
+                    print(f"[P1]: LOG - {msg1.get('data')}")
+                else:
+                    print(f"[P1]: Получен тип {t}")
 
-            while not controller.queue_read2.empty():
-                msg = controller.queue_read2.get()
-                t = msg.get('type', 'Unknown')
-                print(f"[P2]: {t} получено")
+            except queue.Empty:
+                # Если в очереди1 пусто, просто идем дальше
+                pass
 
-            #user_input = input(">> ").strip().lower()
+            # То же самое для второй очереди (если нужно)
+            try:
+                msg2 = controller.queue_read2.get(timeout=0.1)
+                
+                 # Теперь обрабатываем полученное сообщение
+                t = msg2.get('type', 'Unknown')
+                
+                if t == 'CSI_DATA':
+                    # Передаем уже полученное сообщение в функцию обработки
+                    raw_csi_to_amp_phase(msg2, processed_file)
+                    print(f"[P2]: {t} обработано и записано")
+                elif t == 'LOG_DATA':
+                    print(f"[P2]: LOG - {msg2.get('data')}")
+                else:
+                    print(f"[P2]: Получен тип {t}")
+            except queue.Empty:
+                pass
 
-            #if user_input == "locate router":
-            #    controller.send_command("get_csi")
-            #    print("Команда отправлена.")
-            #elif user_input == "exit":
-            #    break
-            #elif user_input == "":
-            #    continue
-            #else:
-            #    print(f"Неизвестная команда: {user_input}")
-
-    
     except KeyboardInterrupt:
         print("\nОстановка...")
     finally:
         controller.p1.terminate()
         controller.p2.terminate()
-        print("Готово.")
