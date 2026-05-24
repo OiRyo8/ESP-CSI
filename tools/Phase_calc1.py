@@ -39,6 +39,8 @@ def base64_decode_bin(str_data):
         print(f"Ошибка декодирования base64: {e}")
         return []
 
+
+
 def serial_handle(queue_read, queue_write, port):
     try:
         # Убедитесь, что pyserial установлен (pip install pyserial)
@@ -56,11 +58,13 @@ def serial_handle(queue_read, queue_write, port):
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-    # Настройка лог-файлов (замена DataFrame на список словарей)
+    safe_port_name = port.replace('/', '_').replace('\\', '_')
+
+    # Добавляем имя порта к названиям файлов
     data_configs = [
-        {"type": "CSI_DATA", "cols": CSI_DATA_COLUMNS, "path": "log/csi_data.csv"},
-        {"type": "RADAR_DADA", "cols": RADAR_DATA_COLUMNS, "path": "log/radar_data.csv"},
-        {"type": "DEVICE_INFO", "cols": DEVICE_INFO_COLUMNS, "path": "log/device_info.csv"}
+        {"type": "CSI_DATA", "cols": CSI_DATA_COLUMNS, "path": f"log/csi_data_{safe_port_name}.csv"},
+        {"type": "RADAR_DADA", "cols": RADAR_DATA_COLUMNS, "path": f"log/radar_data_{safe_port_name}.csv"},
+        {"type": "DEVICE_INFO", "cols": DEVICE_INFO_COLUMNS, "path": f"log/device_info_{safe_port_name}.csv"}
     ]
 
     files_fds = {}
@@ -73,7 +77,7 @@ def serial_handle(queue_read, queue_write, port):
         files_fds[cfg["type"]] = fd
         writers[cfg["type"]] = writer
 
-    log_data_writer = open("log/log_data.txt", 'a', encoding='utf-8')
+    log_data_writer = open(f"log/log_data_{safe_port_name}.txt", 'a', encoding='utf-8')
     target_last = 'unknown'
     target_seq_last = 0
     target_csv_writer = None
@@ -183,25 +187,214 @@ def serial_handle(queue_read, queue_write, port):
         log_data_writer.close()
         ser.close()
 
+def remove_linear_trend(phs, xs=None):
+    # Убирает линейный тренд (a*x + b) методом наименьших квадратов, без numpy
+    n = len(phs)
+    if n == 0:
+       return []
+    if xs is None:
+        xs = list(range(n))
+    if len(xs) != n:
+        xs = list(range(n))
+
+    # Вычисляем усреднения
+    sum_x = 0.0
+    sum_y = 0.0
+    for xi, yi in zip(xs, phs):
+        sum_x += xi
+        sum_y += yi
+    mean_x = sum_x / n
+    mean_y = sum_y / n
+
+    num = 0.0
+    den = 0.0
+    for xi, yi in zip(xs, phs):
+        dx = xi - mean_x
+        dy = yi - mean_y
+        num += dx * dy
+        den += dx * dx
+
+    if den == 0.0:
+        slope = 0.0
+    else:
+        slope = num / den
+
+    intercept = mean_y - slope * mean_x
+
+        # Вычитаем найденную линию
+    detrended = [yi - (slope * xi + intercept) for xi, yi in zip(xs, phs)]
+    return detrended
+
+
+def unwrap_phase_deg(phs):
+        # Простая реализация развёртки фаз в градусах без numpy
+        if not phs:
+            return []
+        unwrapped = [phs[0]]
+        cumulative_offset = 0.0
+        prev_raw = phs[0]
+        for i in range(1, len(phs)):
+            phi = phs[i]
+            delta = phi - prev_raw
+            # приведение дельты к диапазону (-180, 180]
+            delta_mod = (delta + 180.0) % 360.0 - 180.0
+            # корректировка для накопления ступенчатых сдвигов
+            correction = delta_mod - delta
+            cumulative_offset += correction
+            unwrapped.append(phi + cumulative_offset)
+            prev_raw = phi
+        return unwrapped
+
+
+def _get_median(lst):
+    """Вспомогательная функция для поиска медианы в чистом Python."""
+    sorted_lst = sorted(lst)
+    n = len(sorted_lst)
+    if n == 0:
+        return 0
+    if n % 2 == 1:
+        return sorted_lst[n // 2]
+    else:
+        return (sorted_lst[n // 2 - 1] + sorted_lst[n // 2]) / 2.0
+
+barrel = 0.0
+barrel_av = 0.0 
+
+def barrel(amps, time):
+
+    if isinstance(time, str):
+        time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f").timestamp()
+
+    t1 = 0.0
+    t2 = 0.0
+    t1 = time
+    T = float(t1)-float(t2)
+    t2 = time 
+
+    for i in range(0, len(amps)):
+        barrel += amps[i]
+        barrel_av = barrel / 60
+        barrel -= barrel_av
+        amps[i]=barrel_av
+    return amps
+
+def moving_average(data, window_size):
+    """Фильтр низких частот (аналог ФНЧ)"""
+    if not data:
+        return []
+    smoothed = []
+    for i in range(len(data)):
+        # Берем окно из последних window_size элементов
+        start_idx = max(0, i - window_size + 1)
+        window = data[start_idx : i + 1]
+        # Считаем среднее арифметическое
+        avg = sum(window) / len(window)
+        smoothed.append(avg)
+    return smoothed
+
+def hampel_filter(data, window_size=5, n_sigmas=3):
+    """
+    Скользящее окно, которое заменяет аномальные скачки на медиану.
+    Внимание: применяется ко времени (последовательности пакетов), 
+    а не к поднесущим внутри одного пакета!
+    """
+    n = len(data)
+    if n == 0:
+        return []
+    result = list(data) # Создаем копию
+    k = 1.4826 # Коэффициент масштабирования для нормального распределения
+
+    # Проходим скользящим окном
+    for i in range(window_size, n - window_size):
+        # Вырезаем окно
+        window = data[i - window_size : i + window_size + 1]
+        median = _get_median(window)
+
+        # Вычисляем MAD (Медианное абсолютное отклонение)
+        deviations = [abs(x - median) for x in window]
+        mad = _get_median(deviations)
+
+        threshold = n_sigmas * k * mad
+
+        # Если точка слишком сильно отклоняется от медианы окна - срезаем
+        if mad == 0:
+            continue
+        if abs(data[i] - median) > threshold:
+            result[i] = median
+
+    return result
 
 
 def raw_csi_to_amp_phase(msg, processed_file):
     # Теперь функция просто обрабатывает готовый словарь
     raw_data = msg['data']
     timestamp = msg.get('timestamp', 'No_Time') 
+    agc_gain = float(msg.get('agc_gain', 0))
+    fft_gain = int(msg.get('fft_gain', 0))
 
+
+    I = []
+    Q = []
+    In = []
+    Qn = []
     amplitudes = []
     phases = []
 
+
     for i in range(0, len(raw_data), 2):
-        I, Q = raw_data[i], raw_data[i+1]
-        amplitudes.append(math.sqrt(I**2 + Q**2))
+        curr_i = raw_data[i]
+        curr_q = raw_data[i+1]
+    
+        I.append(curr_i)
+        Q.append(curr_q)
+    
+    # Считаем амплитуду, используя текущие значения
+        amps = math.sqrt(curr_i**2 + curr_q**2)
+        amplitudes.append(amps)
+        #phases.append(math.degrees(math.atan2(Q[i], I[i])))
+
+    x=0.0
+    for i in range(9,39):
+        if amplitudes[i] > x:
+            x=amplitudes[i]
+            ref = i
+    
+    for i in range(len(amplitudes)):
+        Incurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        Qncurr=(Q[i]*I[ref]-I[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        In.append(Incurr*I[ref])
+        Qn.append(Qncurr)
+
+    for i in range(len(amplitudes)):
+        I = In[i]
+        Q = Qn[i]
+        amplitudes[i] = (math.sqrt(I**2 + Q**2))
         phases.append(math.degrees(math.atan2(Q, I)))
+
+    # # Развёртка фазы (в градусах) перед записью
+    unwrapped_phases = unwrap_phase_deg(phases)
+
+
+    # # Удаляем линейный сдвиг фазы перед записью
+    # detrended_phases = remove_linear_trend(unwrapped_phases)
+
+    # # Применяем фильтр Хампеля к амплитудам перед записью
+    # try:
+    #     amplitudes = hampel_filter(amplitudes)
+    # except Exception:
+    #     # В случае неожиданных данных оставляем оригинальные амплитуды
+    #     pass
+
+
+    #amplitudes = barrel(amplitudes, timestamp)
+
 
     with open(processed_file, 'a', newline='', encoding='utf-8') as f:
         line = f"{timestamp},"
         for subcarrier_index in range(len(amplitudes)):
-            line+=f"{amplitudes[subcarrier_index]},{phases[subcarrier_index]},"
+            amp = amplitudes[subcarrier_index]
+            ph = phases[subcarrier_index] #detrended_phases[subcarrier_index]
+            line+=f"{amp},{ph},"
         f.write(line + "\n")
 
     # with open(processed_file, 'a', newline='', encoding='utf-8') as f:
@@ -244,13 +437,15 @@ class RadarController:
 
 
 if __name__ == "__main__":
-    processed_file = 'log/csi_processed.csv'
+    processed_file1 = 'log/csi_processed1.csv'
+    processed_file2 = 'log/csi_processed2.csv'
     os.makedirs('log', exist_ok=True) # Убеждаемся, что папка log существует
 
 # Создаем файл и записываем заголовки (режим 'w' перезапишет старый файл при запуске)
-    with open(processed_file, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(["time_stamp",])
+    for f_name in [processed_file1, processed_file2]:
+        with open(f_name, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["time_stamp",])
 
 
     parser = argparse.ArgumentParser()
@@ -291,7 +486,7 @@ if __name__ == "__main__":
                 
                 if t == 'CSI_DATA':
                     # Передаем уже полученное сообщение в функцию обработки
-                    raw_csi_to_amp_phase(msg1, processed_file)
+                    raw_csi_to_amp_phase(msg1, processed_file1)
                     print(f"[P1]: {t} обработано и записано")
                 elif t == 'LOG_DATA':
                     print(f"[P1]: LOG - {msg1.get('data')}")
@@ -311,7 +506,7 @@ if __name__ == "__main__":
                 
                 if t == 'CSI_DATA':
                     # Передаем уже полученное сообщение в функцию обработки
-                    raw_csi_to_amp_phase(msg2, processed_file)
+                    raw_csi_to_amp_phase(msg2, processed_file2)
                     print(f"[P2]: {t} обработано и записано")
                 elif t == 'LOG_DATA':
                     print(f"[P2]: LOG - {msg2.get('data')}")
