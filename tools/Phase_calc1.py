@@ -12,6 +12,25 @@ from io import StringIO
 import re
 import json
 import math
+from scipy.signal import butter, filtfilt
+from collections import deque
+
+ # --- Butterworth bandpass filter helper ---
+FILTER_ENABLED = True
+ # Default band (Hz) and sampling rate - adjust as needed
+FILTER_LOW_HZ = 0.5
+FILTER_HIGH_HZ = 10
+FILTER_ORDER = 4
+SAMPLE_RATE = 75
+
+HISTORY_DEPTH = 75 
+
+ # Буферы для первого и второго порта
+history_p1 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)],
+              "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)]}
+
+history_p2 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)],
+              "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)]}
 
 
 # --- Константы ---
@@ -325,33 +344,83 @@ def hampel_filter(data, window_size=5, n_sigmas=3):
     return result
 
 
+def butter_bandpass(lowcut, highcut, fs, order=4):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    if low <= 0:
+        low = 1e-6
+    if high >= 1:
+        high = 0.999999
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+def bandpass_filter(data, fs, lowcut, highcut, order=4):
+    """Apply a zero-phase Butterworth bandpass to a Python list of numbers.
+    Returns a new Python list. Falls back to original data on error.
+    """
+    if not data:
+        return []
+    try:
+        b, a = butter_bandpass(lowcut, highcut, fs, order)
+        y = filtfilt(b, a, data)
+        return [float(x) for x in y]
+    except Exception:
+        return data
+
+
+
 def raw_csi_to_amp_phase(msg, processed_file):
     # Теперь функция просто обрабатывает готовый словарь
     raw_data = msg['data']
     timestamp = msg.get('timestamp', 'No_Time') 
     agc_gain = float(msg.get('agc_gain', 0))
     fft_gain = int(msg.get('fft_gain', 0))
+    try:
+        rssi = float(msg.get('rssi', -50))
+    except (ValueError, TypeError):
+        rssi = -50.0
 
+    rssi_linear = 10 ** (rssi / 10.0)
 
     I = []
     Q = []
     In = []
     Qn = []
+    Ia = []
+    Qa = []
+    Ian = []
+    Qan = []
     amplitudes = []
+    amplitudes_agc = []
+    amplitudes_rssi = []
+    amplitudessqr = []
+    amplitudes_f = []
     phases = []
+    phases_f = []
 
 
     for i in range(0, len(raw_data), 2):
         curr_i = raw_data[i]
         curr_q = raw_data[i+1]
-    
+
         I.append(curr_i)
         Q.append(curr_q)
-    
-    # Считаем амплитуду, используя текущие значения
+
         amps = math.sqrt(curr_i**2 + curr_q**2)
+        ampsqr = curr_i**2 + curr_q**2
         amplitudes.append(amps)
+        amplitudessqr.append(ampsqr)
         #phases.append(math.degrees(math.atan2(Q[i], I[i])))
+
+    sum_amp = sum(amplitudessqr)
+
+    for i in range(len(amplitudes)):
+        Iacurr=I[i]
+        Qacurr=Q[i]
+        Ia.append((Iacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
+        Qa.append((Qacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
+
 
     x=0.0
     for i in range(9,39):
@@ -359,20 +428,69 @@ def raw_csi_to_amp_phase(msg, processed_file):
             x=amplitudes[i]
             ref = i
     
+    #CSI Ratio для обычных компл ампл (Нужно повторить для уебищных а потом уже считать)
     for i in range(len(amplitudes)):
         Incurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
         Qncurr=(Q[i]*I[ref]-I[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
-        In.append(Incurr*I[ref])
+        In.append(Incurr)
         Qn.append(Qncurr)
 
     for i in range(len(amplitudes)):
-        I = In[i]
-        Q = Qn[i]
-        amplitudes[i] = (math.sqrt(I**2 + Q**2))
-        phases.append(math.degrees(math.atan2(Q, I)))
+        Iacurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        Qacurr=(Q[i]*I[ref]-I[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        Ian.append(Iacurr)
+        Qan.append(Qacurr)
+
+    for i in range(len(amplitudes)):
+        Incurr = In[i]
+        Qncurr = Qn[i]
+        Iacurr = Ian[i]
+        Qacurr = Qan[i]
+        amplitudes_f.append(math.sqrt(Iacurr**2 + Qacurr**2))
+        phases_f.append(math.degrees(math.atan2(Qncurr, Incurr)))
+
+    # for i in range(len(amplitudes_agc)):
+    #     amplitudes_rssi.append(amplitudes_agc[i]*math.sqrt(rssi_linear/sum(amplitudes_agc)**2))
 
     # # Развёртка фазы (в градусах) перед записью
-    unwrapped_phases = unwrap_phase_deg(phases)
+    unwrapped_phases = unwrap_phase_deg(phases_f)
+
+
+    global history_p1, history_p2
+    active_history = history_p1 if "csi_processed1" in processed_file else history_p2
+
+    # Сюда сложим финальные отфильтрованные точки текущего пакета
+    ready_amplitudes = []
+    ready_phases = []
+
+    # Шаг 5: Фильтрация ВО ВРЕМЕНИ для каждой поднесущей отдельно
+    for idx in range(len(amplitudes_f)):
+        # Добавляем текущие значения в историю этой конкретной поднесущей
+        active_history["amp"][idx].append(amplitudes_f[idx])
+        active_history["phase"][idx].append(unwrapped_phases[idx])
+
+        # Переводим деку в обычный список для SciPy
+        amp_series = list(active_history["amp"][idx])
+        phase_series = list(active_history["phase"][idx])
+
+        # Фильтр Баттерворта требует хотя бы ~15 пакетов истории, чтобы не вылетать
+        if FILTER_ENABLED and len(amp_series) > 30:
+            try:
+                filtered_amps = bandpass_filter(amp_series, SAMPLE_RATE, FILTER_LOW_HZ, FILTER_HIGH_HZ, FILTER_ORDER)
+                filtered_phases = bandpass_filter(phase_series, SAMPLE_RATE, FILTER_LOW_HZ, FILTER_HIGH_HZ, FILTER_ORDER)
+                
+                # Берем самый ПОСЛЕДНИЙ (актуальный) элемент из отфильтрованного временного ряда
+                ready_amplitudes.append(filtered_amps[-1])
+                ready_phases.append(filtered_phases[-1])
+            except:
+                # Если фильтр сбоит, берем сырое значение пакета
+                ready_amplitudes.append(amplitudes_f[idx])
+                ready_phases.append(unwrapped_phases[idx])
+        else:
+            # Пока история не накопилась, пишем сырые данные пакета
+            ready_amplitudes.append(amplitudes_f[idx])
+            ready_phases.append(unwrapped_phases[idx])
+
 
 
     # # Удаляем линейный сдвиг фазы перед записью
@@ -392,8 +510,8 @@ def raw_csi_to_amp_phase(msg, processed_file):
     with open(processed_file, 'a', newline='', encoding='utf-8') as f:
         line = f"{timestamp},"
         for subcarrier_index in range(len(amplitudes)):
-            amp = amplitudes[subcarrier_index]
-            ph = phases[subcarrier_index] #detrended_phases[subcarrier_index]
+            amp = amplitudes_f[subcarrier_index]
+            ph = unwrapped_phases[subcarrier_index] #detrended_phases[subcarrier_index]
             line+=f"{amp},{ph},"
         f.write(line + "\n")
 
