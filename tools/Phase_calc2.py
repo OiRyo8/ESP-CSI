@@ -15,15 +15,23 @@ import math
 import threading
 from scipy.signal import butter, filtfilt
 from collections import deque
+import numpy as np
+import pandas as pd
+
 
 # --- Butterworth bandpass filter helper ---
 FILTER_ENABLED = True
 FILTER_LOW_HZ = 0.5
 FILTER_HIGH_HZ = 10
 FILTER_ORDER = 4
-SAMPLE_RATE = 75
+SAMPLE_RATE = 100
 
-HISTORY_DEPTH = 75 
+HISTORY_DEPTH = 200 
+
+# --- Константы ---
+# Буферы для хранения состояния предыдущего успешного пакета (для интерполяции)
+last_state_p1 = {"ts": None, "amp": None, "phase": None}
+last_state_p2 = {"ts": None, "amp": None, "phase": None}
 
 # Буферы для первого и второго порта
 history_p1 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)],
@@ -32,29 +40,7 @@ history_p1 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)],
 history_p2 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)],
               "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(52)]}
 
-# --- Расчет глобальных коэффициентов фильтра (Вычисляем ОДИН раз) ---
-def butter_bandpass(lowcut, highcut, fs, order=4):
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    if low <= 0: low = 1e-6
-    if high >= 1: high = 0.999999
-    b, a = butter(order, [low, high], btype='band')
-    return b, a
 
-b_band, a_band = butter_bandpass(FILTER_LOW_HZ, FILTER_HIGH_HZ, SAMPLE_RATE, FILTER_ORDER)
-
-def bandpass_filter_fast(data):
-    """Быстрое применение фильтра с заранее рассчитанными коэффициентами."""
-    if not data:
-        return []
-    try:
-        y = filtfilt(b_band, a_band, data)
-        return [float(x) for x in y]
-    except Exception:
-        return data
-
-# --- Константы ---
 CSI_VAID_SUBCARRIER_INTERVAL = 5
 csi_vaid_subcarrier_index = [i for i in range(0, 26, CSI_VAID_SUBCARRIER_INTERVAL)]
 
@@ -141,7 +127,7 @@ def serial_handle(queue_read, queue_write, port):
             except: continue
             
             if not line_str: continue
-            print(line_str)
+            #print(line_str)
 
             matched = False
             for cfg in data_configs:
@@ -217,6 +203,29 @@ def serial_handle(queue_read, queue_write, port):
         ser.close()
 
 
+# --- Расчет глобальных коэффициентов фильтра (Вычисляем ОДИН раз) ---
+def butter_bandpass(lowcut, highcut, fs, order=4):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    if low <= 0: low = 1e-6
+    if high >= 1: high = 0.999999
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+b_band, a_band = butter_bandpass(FILTER_LOW_HZ, FILTER_HIGH_HZ, SAMPLE_RATE, FILTER_ORDER)
+
+def bandpass_filter_fast(data):
+    """Быстрое применение фильтра с заранее рассчитанными коэффициентами."""
+    if not data:
+        return []
+    try:
+        y = filtfilt(b_band, a_band, data)
+        return [float(x) for x in y]
+    except Exception:
+        return data
+
+
 def unwrap_phase_deg(phs):
     if not phs:
         return []
@@ -267,11 +276,11 @@ def raw_csi_to_amp_phase(msg, f_out):
     sum_amp = sum(amplitudessqr) if sum(amplitudessqr) > 0 else 1.0
 
     x = 0.0
-    ref = 9  # Значение по умолчанию, чтобы избежать UnboundLocalError
-    for i in range(9, 39):
-        if amplitudes[i] > x:
-            x = amplitudes[i]
-            ref = i
+    ref = 25  # Значение по умолчанию, чтобы избежать UnboundLocalError
+    # for i in range(9, 39):
+    #     if amplitudes[i] > x:
+    #         x = amplitudes[i]
+    #         ref = i
     
     for i in range(len(amplitudes)):
         Incurr = (I[i] * I[ref] + Q[i] * Q[ref]) / (I[ref]**2 + Q[ref]**2)
@@ -290,6 +299,65 @@ def raw_csi_to_amp_phase(msg, f_out):
     global history_p1, history_p2
     # Используем свойство .name файлового дескриптора для определения активного буфера истории
     active_history = history_p1 if "csi_processed1" in f_out.name else history_p2
+
+    # # --- БЛОК ИНТЕРПОЛЯЦИИ С NUMPY И PANDAS ---
+    # global last_state_p1, last_state_p2
+    
+    # # Определяем активный буфер истории и состояние для текущего порта
+    # is_p1 = "csi_processed1" in f_out.name
+    # active_history = history_p1 if is_p1 else history_p2
+    # state = last_state_p1 if is_p1 else last_state_p2
+
+    # current_ts = pd.to_datetime(timestamp)
+    # dt_expected = 1.0 / SAMPLE_RATE  # ~0.013333 сек
+
+    # if state["ts"] is not None:
+    #     delta_t = (current_ts - state["ts"]).total_seconds()
+        
+    #     # Если пропуск больше, чем 1.5 ожидаемых интервала, фиксируем потерю пакетов
+    #     if delta_t > 1.5 * dt_expected:
+    #         num_missing = int(round(delta_t / dt_expected)) - 1
+            
+    #         # Защита от "залипаний": если связь пропала надолго, не генерируем миллионы точек
+    #         num_missing = min(num_missing, 150)  # максимум 2 секунды пропуска
+            
+    #         if num_missing > 0:
+    #             # Сетка весов от 0 до 1 для линейной интерполяции векторов
+    #             grid = np.linspace(0, 1, num_missing + 2)[1:-1]
+                
+    #             # Превращаем списки в массивы NumPy для векторных операций
+    #             old_amp = np.array(state["amp"])
+    #             new_amp = np.array(amplitudes_f)
+    #             old_phase = np.array(state["phase"])
+    #             new_phase = np.array(unwrapped_phases)
+
+    #             for step in range(num_missing):
+    #                 weight = grid[step]
+                    
+    #                 # Быстрая линейная интерполяция векторов для всех 52 поднесущих
+    #                 interp_amp = (1 - weight) * old_amp + weight * new_amp
+    #                 interp_phase = (1 - weight) * old_phase + weight * new_phase
+                    
+    #                 # 1. Добавляем виртуальную точку в историю дек (сохраняем равномерный шаг для фильтра)
+    #                 for idx in range(len(interp_amp)):
+    #                     active_history["amp"][idx].append(interp_amp[idx])
+    #                     active_history["phase"][idx].append(interp_phase[idx])
+                    
+    #                 # 2. Вычисляем виртуальный таймстамп для записи в CSV
+    #                 interp_ts_val = state["ts"] + pd.Timedelta(seconds=(step + 1) * dt_expected)
+    #                 interp_ts_str = interp_ts_val.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                    
+    #                 # Записываем интерполированную строку в файл (без фильтрации, просто чтобы не было дыр)
+    #                 line_interp = f"{interp_ts_str},"
+    #                 for subcarrier_index in range(len(interp_amp)):
+    #                     line_interp += f"{interp_amp[subcarrier_index]},{interp_phase[subcarrier_index]},"
+    #                 f_out.write(line_interp + "\n")
+
+    # # Обновляем глобальное состояние последней "честной" точки
+    # state["ts"] = current_ts
+    # state["amp"] = amplitudes_f
+    # state["phase"] = unwrapped_phases
+    # # --- КОНЕЦ БЛОКА ИНТЕРПОЛЯЦИИ ---
 
     ready_amplitudes = []
     ready_phases = []
@@ -420,7 +488,7 @@ if __name__ == "__main__":
                 
                 if t == 'CSI_DATA':
                     raw_csi_to_amp_phase(msg1, f_out1)
-                    print(f"[P1]: {t} обработано и записано")
+                    #print(f"[P1]: {t} обработано и записано")
                 elif t == 'LOG_DATA':
                     print(f"[P1]: LOG - {msg1.get('data')}")
                 elif t == 'FAIL_EVENT':
@@ -435,7 +503,7 @@ if __name__ == "__main__":
                 
                 if t == 'CSI_DATA':
                     raw_csi_to_amp_phase(msg2, f_out2)
-                    print(f"[P2]: {t} обработано и записано")
+                    #print(f"[P2]: {t} обработано и записано")
                 elif t == 'LOG_DATA':
                     print(f"[P2]: LOG - {msg2.get('data')}")
                 elif t == 'FAIL_EVENT':
