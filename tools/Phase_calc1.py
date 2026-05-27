@@ -438,8 +438,8 @@ def raw_csi_to_amp_phase(msg, processed_file):
         Qn.append(Qncurr)
 
     for i in range(len(amplitudes)):
-        Iacurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
-        Qacurr=(Q[i]*I[ref]-I[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        Iacurr=(Ia[i]*Ia[ref]+Qa[i]*Qa[ref])/(Ia[ref]**2+Qa[ref]**2)
+        Qacurr=(Qa[i]*Ia[ref]-Ia[i]*Qa[ref])/(Ia[ref]**2+Qa[ref]**2)
         Ian.append(Iacurr)
         Qan.append(Qacurr)
 
@@ -510,11 +510,12 @@ def raw_csi_to_amp_phase(msg, processed_file):
 
 
     
+    # Запись в уже открытый дескриптор файла f_out (без повторного open/close)
     line = f"{timestamp},"
     for subcarrier_index in range(len(amplitudes)):
-        amp = amplitudes_f[subcarrier_index]
-        ph = unwrapped_phases[subcarrier_index] #detrended_phases[subcarrier_index]
-        line+=f"{amp},{ph},"
+        amp = ready_amplitudes[subcarrier_index]
+        ph = ready_phases[subcarrier_index]
+        line += f"{amp},{ph},"
     f_out.write(line + "\n")
 
     # with open(processed_file, 'a', newline='', encoding='utf-8') as f:

@@ -227,27 +227,31 @@ def bandpass_filter_fast(data):
 
 
 def unwrap_phase_deg(phs):
-    if not phs:
-        return []
-    unwrapped = [phs[0]]
-    cumulative_offset = 0.0
-    prev_raw = phs[0]
-    for i in range(1, len(phs)):
-        phi = phs[i]
-        delta = phi - prev_raw
-        delta_mod = (delta + 180.0) % 360.0 - 180.0
-        correction = delta_mod - delta
-        cumulative_offset += correction
-        unwrapped.append(phi + cumulative_offset)
-        prev_raw = phi
-    return unwrapped
+        # Простая реализация развёртки фаз в градусах без numpy
+        if not phs:
+            return []
+        unwrapped = [phs[0]]
+        cumulative_offset = 0.0
+        prev_raw = phs[0]
+        for i in range(1, len(phs)):
+            phi = phs[i]
+            delta = phi - prev_raw
+            # приведение дельты к диапазону (-180, 180]
+            delta_mod = (delta + 180.0) % 360.0 - 180.0
+            # корректировка для накопления ступенчатых сдвигов
+            correction = delta_mod - delta
+            cumulative_offset += correction
+            unwrapped.append(phi + cumulative_offset)
+            prev_raw = phi
+        return unwrapped
 
 
 def raw_csi_to_amp_phase(msg, f_out):
+        # Теперь функция просто обрабатывает готовый словарь
     raw_data = msg['data']
     timestamp = msg.get('timestamp', 'No_Time') 
     agc_gain = float(msg.get('agc_gain', 0))
-    
+    fft_gain = int(msg.get('fft_gain', 0))
     try:
         rssi = float(msg.get('rssi', -50))
     except (ValueError, TypeError):
@@ -259,42 +263,78 @@ def raw_csi_to_amp_phase(msg, f_out):
     Q = []
     In = []
     Qn = []
+    Ia = []
+    Qa = []
+    Ian = []
+    Qan = []
     amplitudes = []
+    amplitudes_agc = []
+    amplitudes_rssi = []
     amplitudessqr = []
     amplitudes_f = []
+    phases = []
     phases_f = []
+
 
     for i in range(0, len(raw_data), 2):
         curr_i = raw_data[i]
         curr_q = raw_data[i+1]
+
         I.append(curr_i)
         Q.append(curr_q)
+
         amps = math.sqrt(curr_i**2 + curr_q**2)
+        ampsqr = curr_i**2 + curr_q**2
         amplitudes.append(amps)
-        amplitudessqr.append(curr_i**2 + curr_q**2)
+        amplitudessqr.append(ampsqr)
+        #phases.append(math.degrees(math.atan2(Q[i], I[i])))
 
-    sum_amp = sum(amplitudessqr) if sum(amplitudessqr) > 0 else 1.0
+    sum_amp = sum(amplitudessqr)
 
-    x = 0.0
-    ref = 25  # Значение по умолчанию, чтобы избежать UnboundLocalError
-    # for i in range(9, 39):
-    #     if amplitudes[i] > x:
-    #         x = amplitudes[i]
-    #         ref = i
+    #Нейтрализуется CSI Ratio но можно реализовать отдельный вывод
+    # for i in range(len(amplitudes)):
+    #     Iacurr=I[i]
+    #     Qacurr=Q[i]
+    #     Ia.append((Iacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
+    #     Qa.append((Qacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
+
+
+    x=0.0
+    ref = 9
+    for i in range(9,39):
+        if amplitudes[i] > x:
+            x=amplitudes[i]
+            ref = i
     
+
     for i in range(len(amplitudes)):
-        Incurr = (I[i] * I[ref] + Q[i] * Q[ref]) / (I[ref]**2 + Q[ref]**2)
-        Qncurr = (Q[i] * I[ref] - I[i] * Q[ref]) / (I[ref]**2 + Q[ref]**2)
+        Incurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        Qncurr=(Q[i]*I[ref]-I[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
         In.append(Incurr)
         Qn.append(Qncurr)
+
+    #Нейтрализуется CSI Ratio но можно реализовать отдельный вывод
+    # for i in range(len(amplitudes)):
+    #     Iacurr=(Ia[i]*Ia[ref]+Qa[i]*Qa[ref])/(Ia[ref]**2+Qa[ref]**2)
+    #     Qacurr=(Qa[i]*Ia[ref]-Ia[i]*Qa[ref])/(Ia[ref]**2+Qa[ref]**2)
+    #     Ian.append(Iacurr)
+    #     Qan.append(Qacurr)
 
     for i in range(len(amplitudes)):
         Incurr = In[i]
         Qncurr = Qn[i]
+        #Iacurr = Ian[i]
+        #Qacurr = Qan[i]
         amplitudes_f.append(math.sqrt(Incurr**2 + Qncurr**2))
         phases_f.append(math.degrees(math.atan2(Qncurr, Incurr)))
 
+    # for i in range(len(amplitudes_agc)):
+    #     amplitudes_rssi.append(amplitudes_agc[i]*math.sqrt(rssi_linear/sum(amplitudes_agc)**2))
+
+    # # Развёртка фазы (в градусах) перед записью
     unwrapped_phases = unwrap_phase_deg(phases_f)
+
+
 
     global history_p1, history_p2
     # Используем свойство .name файлового дескриптора для определения активного буфера истории
