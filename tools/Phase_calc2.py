@@ -445,6 +445,8 @@ def raw_csi_to_amp_phase(msg, f_out):
         line += f"{amp},{ph},"
     f_out.write(line + "\n")
 
+    return amplitudes_f, ready_amplitudes, phase_series_unwrapped, ready_phases
+
 
 class RadarController:
     def __init__(self, port1, port2):
@@ -492,84 +494,85 @@ def input_thread_func(controller):
 
 
 if __name__ == "__main__":
-    processed_file1 = 'log/csi_processed1.csv'
-    processed_file2 = 'log/csi_processed2.csv'
-    os.makedirs('log', exist_ok=True)
+    # processed_file1 = 'log/csi_processed1.csv'
+    # processed_file2 = 'log/csi_processed2.csv'
+    # os.makedirs('log', exist_ok=True)
 
-    for f_name in [processed_file1, processed_file2]:
-        with open(f_name, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(["time_stamp",])
+    # for f_name in [processed_file1, processed_file2]:
+    #     with open(f_name, 'w', newline='', encoding='utf-8') as f:
+    #         writer = csv.writer(f)
+    #         writer.writerow(["time_stamp",])
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p1', '--port1', required=True)
-    parser.add_argument('-p2', '--port2', required=True)
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-p1', '--port1', required=True)
+    # parser.add_argument('-p2', '--port2', required=True)
+    # args = parser.parse_args()
 
-    controller = RadarController(args.port1, args.port2)
-    controller.start()
+    # controller = RadarController(args.port1, args.port2)
+    # controller.start()
 
-    # Запускаем интерактивный поток для обработки ввода пользователя из терминала
-    t_in = threading.Thread(target=input_thread_func, args=(controller,), daemon=True)
-    t_in.start()
+    # # Запускаем интерактивный поток для обработки ввода пользователя из терминала
+    # t_in = threading.Thread(target=input_thread_func, args=(controller,), daemon=True)
+    # t_in.start()
 
-    # Сразу ставим команды инициализации в очередь. 
-    # Благодаря time.sleep(3.5) внутри процессов, команды дождутся загрузки плат.
-    try:
-        with open('./config/gui_config.json', 'r', encoding='utf-8') as f:
-            cfg = json.load(f)
-            ssid = cfg.get('router_ssid', '').strip()
-            pwd = cfg.get('router_password', '').strip()
-            if ssid:
-                controller.send_command("radar --csi_output_type LLFT --csi_output_format base64")
-                controller.router_connect(ssid, pwd)
-                print(f"Стартовая конфигурация для SSID '{ssid}' отправлена в очередь ожидания.")
-    except Exception:
-        pass
+    # # Сразу ставим команды инициализации в очередь. 
+    # # Благодаря time.sleep(3.5) внутри процессов, команды дождутся загрузки плат.
+    # try:
+    #     with open('./config/gui_config.json', 'r', encoding='utf-8') as f:
+    #         cfg = json.load(f)
+    #         ssid = cfg.get('router_ssid', '').strip()
+    #         pwd = cfg.get('router_password', '').strip()
+    #         if ssid:
+    #             controller.send_command("radar --csi_output_type LLFT --csi_output_format base64")
+    #             controller.router_connect(ssid, pwd)
+    #             print(f"Стартовая конфигурация для SSID '{ssid}' отправлена в очередь ожидания.")
+    # except Exception:
+    #     pass
 
-    print("--- Система запущена (без Pandas/Numpy) ---")
-    print("Доступные команды: 'locate router', 'exit' или любые команды для CLI ESP32.")
+    # print("--- Система запущена (без Pandas/Numpy) ---")
+    # print("Доступные команды: 'locate router', 'exit' или любые команды для CLI ESP32.")
 
-    # Открываем дескрипторы файлов один раз на весь период работы программы
-    f_out1 = open(processed_file1, 'a', newline='', encoding='utf-8')
-    f_out2 = open(processed_file2, 'a', newline='', encoding='utf-8')
+    # # Открываем дескрипторы файлов один раз на весь период работы программы
+    # f_out1 = open(processed_file1, 'a', newline='', encoding='utf-8')
+    # f_out2 = open(processed_file2, 'a', newline='', encoding='utf-8')
 
-    try:
-        while True:
-            # Обработка данных первой очереди
-            try:
-                msg1 = controller.queue_read1.get(timeout=0.05)
-                t = msg1.get('type', 'Unknown')
+    # try:
+    #     while True:
+    #         # Обработка данных первой очереди
+    #         try:
+    #             msg1 = controller.queue_read1.get(timeout=0.05)
+    #             t = msg1.get('type', 'Unknown')
                 
-                if t == 'CSI_DATA':
-                    raw_csi_to_amp_phase(msg1, f_out1)
-                    #print(f"[P1]: {t} обработано и записано")
-                elif t == 'LOG_DATA':
-                    print(f"[P1]: LOG - {msg1.get('data')}")
-                elif t == 'FAIL_EVENT':
-                    print(f"[P1]: КРИТИЧЕСКАЯ ОШИБКА - {msg1.get('data')}")
-            except queue.Empty:
-                pass
+    #             if t == 'CSI_DATA':
+    #                 raw_csi_to_amp_phase(msg1, f_out1)
+    #                 #print(f"[P1]: {t} обработано и записано")
+    #             elif t == 'LOG_DATA':
+    #                 print(f"[P1]: LOG - {msg1.get('data')}")
+    #             elif t == 'FAIL_EVENT':
+    #                 print(f"[P1]: КРИТИЧЕСКАЯ ОШИБКА - {msg1.get('data')}")
+    #         except queue.Empty:
+    #             pass
 
-            # Обработка данных второй очереди
-            try:
-                msg2 = controller.queue_read2.get(timeout=0.05)
-                t = msg2.get('type', 'Unknown')
+    #         # Обработка данных второй очереди
+    #         try:
+    #             msg2 = controller.queue_read2.get(timeout=0.05)
+    #             t = msg2.get('type', 'Unknown')
                 
-                if t == 'CSI_DATA':
-                    raw_csi_to_amp_phase(msg2, f_out2)
-                    #print(f"[P2]: {t} обработано и записано")
-                elif t == 'LOG_DATA':
-                    print(f"[P2]: LOG - {msg2.get('data')}")
-                elif t == 'FAIL_EVENT':
-                    print(f"[P2]: КРИТИЧЕСКАЯ ОШИБКА - {msg2.get('data')}")
-            except queue.Empty:
-                pass
+    #             if t == 'CSI_DATA':
+    #                 raw_csi_to_amp_phase(msg2, f_out2)
+    #                 #print(f"[P2]: {t} обработано и записано")
+    #             elif t == 'LOG_DATA':
+    #                 print(f"[P2]: LOG - {msg2.get('data')}")
+    #             elif t == 'FAIL_EVENT':
+    #                 print(f"[P2]: КРИТИЧЕСКАЯ ОШИБКА - {msg2.get('data')}")
+    #         except queue.Empty:
+    #             pass
 
-    except KeyboardInterrupt:
-        print("\nОстановка...")
-    finally:
-        f_out1.close()
-        f_out2.close()
-        controller.p1.terminate()
-        controller.p2.terminate()
+    # except KeyboardInterrupt:
+    #     print("\nОстановка...")
+    # finally:
+    #     f_out1.close()
+    #     f_out2.close()
+    #     controller.p1.terminate()
+    #     controller.p2.terminate()
+    print("Запустите файл gui_visualizer.py для отображения интерфейса.")
