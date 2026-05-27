@@ -403,24 +403,39 @@ def raw_csi_to_amp_phase(msg, f_out):
     ready_phases = []
 
     for idx in range(len(amplitudes_f)):
+        # 1. Сначала сохраняем текущее значение (частотно-развернутое) в историю времени
         active_history["amp"][idx].append(amplitudes_f[idx])
         active_history["phase"][idx].append(unwrapped_phases[idx])
 
         amp_series = list(active_history["amp"][idx])
         phase_series = list(active_history["phase"][idx])
 
+        # 2. Делаем развёртку ВО ВРЕМЕНИ для накопленной истории этой поднесущей
+        if len(phase_series) > 1:
+            phase_series_unwrapped = np.unwrap(phase_series, period=360)
+        else:
+            phase_series_unwrapped = phase_series
+
+        # Текущая развернутая фаза — это ПОСЛЕДНИЙ элемент временного ряда
+        current_unwrapped_phase = phase_series_unwrapped[-1]
+
+        # 3. Фильтрация (передаем весь развернутый вектор)
         if FILTER_ENABLED and len(amp_series) > 30:
             try:
                 filtered_amps = bandpass_filter_fast(amp_series)
-                filtered_phases = bandpass_filter_fast(phase_series)
+                # Превращаем ndarray от numpy обратно в list для вашего фильтра
+                filtered_phases = bandpass_filter_fast(list(phase_series_unwrapped))
+                
+                # Забираем последние (актуальные для этого шага) отфильтрованные точки
                 ready_amplitudes.append(filtered_amps[-1])
                 ready_phases.append(filtered_phases[-1])
-            except:
+            except Exception:
                 ready_amplitudes.append(amplitudes_f[idx])
-                ready_phases.append(unwrapped_phases[idx])
+                ready_phases.append(current_unwrapped_phase)
         else:
             ready_amplitudes.append(amplitudes_f[idx])
-            ready_phases.append(unwrapped_phases[idx])
+            ready_phases.append(current_unwrapped_phase)
+
 
     # Запись в уже открытый дескриптор файла f_out (без повторного open/close)
     line = f"{timestamp},"
