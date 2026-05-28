@@ -65,12 +65,31 @@ static void wifi_init(void)
     ESP_ERROR_CHECK(esp_wifi_start());
     esp_netif_create_default_wifi_sta();
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
-    ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G));
+    ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11N));
     ESP_ERROR_CHECK(esp_wifi_set_channel(CONFIG_LESS_INTERFERENCE_CHANNEL, WIFI_SECOND_CHAN_BELOW));
 
 #ifdef RECV_ESPNOW_CSI 
     ESP_ERROR_CHECK(esp_wifi_set_promiscuous(true));
 #endif
+	
+	// 1. Создаем переменную для стандартной структуры конфигурации CSI от Espressif
+	wifi_csi_config_t csi_config = { 0 };
+
+	// 2. Получаем текущую конфигурацию, чтобы не затереть другие важные параметры (например, shift)
+	esp_wifi_get_csi_config(&csi_config);
+
+	// 3. Включаем сбор нужных типов LTF (включая HT-LTF для 802.11n пакетов)
+	csi_config.lltf_en     = true; // Включение Legacy LTF (базовое)
+	csi_config.htltf_en    = true; // <-- ВКЛЮЧЕНИЕ HT-LTF
+	csi_config.stbc_htltf2_en = true; // Включение STBC HT-LTF (опционально, для MIMO-пакетов с STBC)
+
+	// 4. Включаем склейку/объединение полей LTF для получения полной матрицы канала
+	csi_config.ltf_merge_en = true; // <-- ВКЛЮЧЕНИЕ ltf_merge_en
+
+	// 5. Записываем обновленную конфигурацию обратно в Wi-Fi драйвер ESP-IDF
+	ESP_ERROR_CHECK(esp_wifi_set_csi_config(&csi_config));
+
+	ESP_LOGI(TAG, "HT-LTF collection and ltf_merge_en successfully enabled.");
 }
 
 static struct {
