@@ -33,6 +33,11 @@ HISTORY_DEPTH = 200
 last_state_p1 = {"ts": None, "amp": None, "phase": None}
 last_state_p2 = {"ts": None, "amp": None, "phase": None}
 
+reference_states = {
+    "csi_processed1": {"calib_ref": None, "active_ref": None, "phase_offset": 0.0},
+    "csi_processed2": {"calib_ref": None, "active_ref": None, "phase_offset": 0.0}
+}
+
 # Буферы для первого и второго порта
 history_p1 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)],
               "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)],
@@ -330,45 +335,67 @@ def raw_csi_to_amp_phase(msg, f_out):
     #     Qa.append((Qacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
 
 
-    x=0.0
-    if amplitudes[ref] < amp_ref/2:
-        for i in range(11,122):
-            if amplitudes[i] > x:
-                x=amplitudes[i]
-                ref = i
-    
-    amp_ref = amplitudes[ref]
+    global history_p1, history_p2
+    # Определяем активный буфер истории для текущего вызова по имени дескриптора файла
+    active_history = history_p1 if "csi_processed1" in f_out.name else history_p2
 
+    active_history["packet_count"] += 1
+    old_ref = active_history["current_ref"]
+    ref = old_ref # По умолчанию референс остается прежним
+
+    # Квазистатический выбор: проверяем референс раз в 200 пакетов (~2 секунды при 100 Гц)
+    # или экстренно переключаемся, если амплитуда текущего референса упала в глубокое замирание
+    if amplitudes[old_ref] < 10.0:
+        best_amp = 0.0
+        new_ref = old_ref
+        for i in range(6, 122): # Ищем только в безопасной зоне поднесущих
+            if amplitudes[i] > best_amp:
+                best_amp = amplitudes[i]
+                new_ref = i
+        
+        # Переключаемся, только если новый референс ощутимо сильнее старого (гистерезис 1.5х)
+        if new_ref != old_ref and amplitudes[new_ref] > (amplitudes[old_ref] * 1.5):
+            
+            # --- РАСЧЕТ РАЗНИЦЫ ФАЗ В МОМЕНТ ПЕРЕКЛЮЧЕНИЯ ---
+            # 1. Получаем сырые фазы старого и нового референсов в ЭТОМ ЖЕ пакете
+            raw_phase_old = math.degrees(math.atan2(Q[old_ref], I[old_ref]))
+            raw_phase_new = math.degrees(math.atan2(Q[new_ref], I[new_ref]))
+            
+            # 2. Вычисляем скачок
+            delta = raw_phase_new - raw_phase_old
+            
+            # 3. Нормализация дельты в диапазон [-180, 180] градусов
+            delta = (delta + 180.0) % 360.0 - 180.0
+            
+            # 4. Добавляем в кумулятивное смещение порта и обновляем индекс
+            active_history["phase_offset"] += delta
+            active_history["current_ref"] = new_ref
+            ref = new_ref
+            print(f"[{f_out.name}] Смена референса: {old_ref} -> {new_ref}. Офсет: {active_history['phase_offset']:.2f}")
+
+    # Строим матрицы отношений (CSI Ratio) относительно выбранного ref
     for i in range(len(amplitudes)):
-        Incurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
-        Qncurr=(Q[i]*I[ref]-I[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
+        Incurr = (I[i]*I[ref] + Q[i]*Q[ref]) / (I[ref]**2 + Q[ref]**2)
+        Qncurr = (Q[i]*I[ref] - I[i]*Q[ref]) / (I[ref]**2 + Q[ref]**2)
         In.append(Incurr)
         Qn.append(Qncurr)
-
-    #Нейтрализуется CSI Ratio но можно реализовать отдельный вывод
-    # for i in range(len(amplitudes)):
-    #     Iacurr=(Ia[i]*Ia[ref]+Qa[i]*Qa[ref])/(Ia[ref]**2+Qa[ref]**2)
-    #     Qacurr=(Qa[i]*Ia[ref]-Ia[i]*Qa[ref])/(Ia[ref]**2+Qa[ref]**2)
-    #     Ian.append(Iacurr)
-    #     Qan.append(Qacurr)
 
     for i in range(len(amplitudes)):
         Incurr = In[i]
         Qncurr = Qn[i]
-        #Iacurr = Ian[i]
-        #Qacurr = Qan[i]
         amplitudes_f.append(math.sqrt(Incurr**2 + Qncurr**2))
-        phases_f.append(math.degrees(math.atan2(Qncurr, Incurr)))
-
-    # for i in range(len(amplitudes_agc)):
-    #     amplitudes_rssi.append(amplitudes_agc[i]*math.sqrt(rssi_linear/sum(amplitudes_agc)**2))
-
-
-
-
-    global history_p1, history_p2
-    # Используем свойство .name файлового дескриптора для определения активного буфера истории
-    active_history = history_p1 if "csi_processed1" in f_out.name else history_p2
+        
+        # Вычисляем фазу относительно референса
+        rel_phase = math.degrees(math.atan2(Qncurr, Incurr))
+        
+        # --- ПРИМЕНЕНИЕ КОНСТАНТЫ СМЕЩЕНИЯ ---
+        # Корректируем фазу на накопленный офсет, убирая «ступеньку»
+        corrected_phase = rel_phase + active_history["phase_offset"]
+        
+        # Нормализуем итоговую фазу пакета, чтобы она оставалась в пределах [-180, 180]
+        corrected_phase = (corrected_phase + 180.0) % 360.0 - 180.0
+        
+        phases_f.append(corrected_phase)
 
     # # --- БЛОК ИНТЕРПОЛЯЦИИ С NUMPY И PANDAS ---
     # global last_state_p1, last_state_p2
