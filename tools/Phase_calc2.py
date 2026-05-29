@@ -21,7 +21,7 @@ import pandas as pd
 
 # --- Butterworth bandpass filter helper ---
 FILTER_ENABLED = True
-FILTER_LOW_HZ = 0.5
+FILTER_LOW_HZ = 0.1
 FILTER_HIGH_HZ = 10
 FILTER_ORDER = 4
 SAMPLE_RATE = 100
@@ -35,10 +35,16 @@ last_state_p2 = {"ts": None, "amp": None, "phase": None}
 
 # Буферы для первого и второго порта
 history_p1 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)],
-              "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)]}
+              "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)],
+              "current_ref": 26,       # Начальный жестко заданный референс
+              "phase_offset": 0.0,     # Кумулятивное смещение фазы для этого порта
+              "packet_count": 0}
 
 history_p2 = {"amp": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)],
-              "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)]}
+              "phase": [deque(maxlen=HISTORY_DEPTH) for _ in range(128)],
+              "current_ref": 26,       # Начальный жестко заданный референс
+              "phase_offset": 0.0,     # Кумулятивное смещение фазы для этого порта
+              "packet_count": 0}
 
 
 CSI_VAID_SUBCARRIER_INTERVAL = 5
@@ -325,12 +331,13 @@ def raw_csi_to_amp_phase(msg, f_out):
 
 
     x=0.0
-    ref = 6
-    for i in range(6,122):
-        if amplitudes[i] > x:
-            x=amplitudes[i]
-            ref = i
+    if amplitudes[ref] < amp_ref/2:
+        for i in range(11,122):
+            if amplitudes[i] > x:
+                x=amplitudes[i]
+                ref = i
     
+    amp_ref = amplitudes[ref]
 
     for i in range(len(amplitudes)):
         Incurr=(I[i]*I[ref]+Q[i]*Q[ref])/(I[ref]**2+Q[ref]**2)
@@ -436,11 +443,22 @@ def raw_csi_to_amp_phase(msg, f_out):
         # 2. Делаем развёртку ВО ВРЕМЕНИ для накопленной истории этой поднесущей
         if len(phase_series) > 1:
             phase_series_unwrapped = np.unwrap(phase_series, period=360)
+            
+            # --- Санитация фазы во времени (Detrending) ---
+            # Индексы массива выступают в роли временной шкалы
+            t_idx = np.arange(len(phase_series_unwrapped))
+            
+            # Находим линейный тренд (наклон 'a' и смещение 'b') методом наименьших квадратов
+            a, b = np.polyfit(t_idx, phase_series_unwrapped, 1)
+            
+            # Вычитаем линейный тренд, убирая дрейф от CFO/SFO
+            phase_series_unwrapped = phase_series_unwrapped - (a * t_idx + b)
+            
+            # Текущая развернутая и санированная фаза — это ПОСЛЕДНИЙ элемент
+            current_unwrapped_phase = phase_series_unwrapped[-1]
         else:
             phase_series_unwrapped = phase_series
-
-        # Текущая развернутая фаза — это ПОСЛЕДНИЙ элемент временного ряда
-        current_unwrapped_phase = phase_series_unwrapped[-1]
+            current_unwrapped_phase = phase_series[0] if len(phase_series) > 0 else 0
 
         # 3. Фильтрация (передаем весь развернутый вектор)
         if FILTER_ENABLED and len(amp_series) > 30:
@@ -467,6 +485,7 @@ def raw_csi_to_amp_phase(msg, f_out):
         ph = ready_phases[subcarrier_index]
         line += f"{amp},{ph},"
     f_out.write(line + "\n")
+    return amplitudes_f, ready_amplitudes, phase_series_unwrapped, ready_phases
 
 
 class RadarController:
@@ -515,6 +534,9 @@ def input_thread_func(controller):
 
 
 if __name__ == "__main__":
+    ref = 0
+    amp_ref = 1.0
+
     processed_file1 = 'log/csi_processed1.csv'
     processed_file2 = 'log/csi_processed2.csv'
     os.makedirs('log', exist_ok=True)
