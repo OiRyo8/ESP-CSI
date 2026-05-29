@@ -283,218 +283,115 @@ def sanitize_phase(phases, subcarrier_indices):
 
 
 def raw_csi_to_amp_phase(msg, f_out):
-        # Теперь функция просто обрабатывает готовый словарь
     raw_data = msg['data']
     timestamp = msg.get('timestamp', 'No_Time') 
-    agc_gain = float(msg.get('agc_gain', 0))
-    fft_gain = int(msg.get('fft_gain', 0))
-    try:
-        rssi = float(msg.get('rssi', -50))
-    except (ValueError, TypeError):
-        rssi = -50.0
-
-    rssi_linear = 10 ** (rssi / 10.0)
+    
+    # Определяем, с каким файлом/портом работаем
+    port_key = "csi_processed1" if "csi_processed1" in f_out.name else "csi_processed2"
+    p_state = reference_states[port_key]
+    active_history = history_p1 if port_key == "csi_processed1" else history_p2
 
     I = []
     Q = []
-    In = []
-    Qn = []
-    Ia = []
-    Qa = []
-    Ian = []
-    Qan = []
     amplitudes = []
-    amplitudes_agc = []
-    amplitudes_rssi = []
     amplitudessqr = []
-    amplitudes_f = []
-    phases = []
-    phases_f = []
 
-
+    # 1. Извлекаем сырые I/Q и считаем честные сырые амплитуды
     for i in range(0, len(raw_data), 2):
         curr_i = raw_data[i]
         curr_q = raw_data[i+1]
-
         I.append(curr_i)
         Q.append(curr_q)
+        amplitudes.append(math.sqrt(curr_i**2 + curr_q**2))
+        amplitudessqr.append(curr_i**2 + curr_q**2)
 
-        amps = math.sqrt(curr_i**2 + curr_q**2)
-        ampsqr = curr_i**2 + curr_q**2
-        amplitudes.append(amps)
-        amplitudessqr.append(ampsqr)
-        #phases.append(math.degrees(math.atan2(Q[i], I[i])))
-
-    sum_amp = sum(amplitudessqr)
-
-    #Нейтрализуется CSI Ratio но можно реализовать отдельный вывод
-    # for i in range(len(amplitudes)):
-    #     Iacurr=I[i]
-    #     Qacurr=Q[i]
-    #     Ia.append((Iacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
-    #     Qa.append((Qacurr/10**(agc_gain/20))*math.sqrt(rssi_linear/sum_amp))
-
-
-    global history_p1, history_p2
-    # Определяем активный буфер истории для текущего вызова по имени дескриптора файла
-    active_history = history_p1 if "csi_processed1" in f_out.name else history_p2
-
-    active_history["packet_count"] += 1
-    old_ref = active_history["current_ref"]
-    ref = old_ref # По умолчанию референс остается прежним
-
-    # Квазистатический выбор: проверяем референс раз в 200 пакетов (~2 секунды при 100 Гц)
-    # или экстренно переключаемся, если амплитуда текущего референса упала в глубокое замирание
-    if amplitudes[old_ref] < 10.0:
+    # 2. ПЕРВАЯ КАЛИБРОВКА: Если это самый первый пакет, ищем глобально лучший референс
+    if p_state["calib_ref"] is None:
         best_amp = 0.0
-        new_ref = old_ref
-        for i in range(6, 122): # Ищем только в безопасной зоне поднесущих
+        best_idx = 6
+        # Ищем в стабильной зоне (пропускаем крайние затухающие поднесущие)
+        for i in range(10, 115):
             if amplitudes[i] > best_amp:
                 best_amp = amplitudes[i]
-                new_ref = i
-        
-        # Переключаемся, только если новый референс ощутимо сильнее старого (гистерезис 1.5х)
-        if new_ref != old_ref and amplitudes[new_ref] > (amplitudes[old_ref] * 1.5):
-            
-            # --- РАСЧЕТ РАЗНИЦЫ ФАЗ В МОМЕНТ ПЕРЕКЛЮЧЕНИЯ ---
-            # 1. Получаем сырые фазы старого и нового референсов в ЭТОМ ЖЕ пакете
-            raw_phase_old = math.degrees(math.atan2(Q[old_ref], I[old_ref]))
-            raw_phase_new = math.degrees(math.atan2(Q[new_ref], I[new_ref]))
-            
-            # 2. Вычисляем скачок
-            delta = raw_phase_new - raw_phase_old
-            
-            # 3. Нормализация дельты в диапазон [-180, 180] градусов
-            delta = (delta + 180.0) % 360.0 - 180.0
-            
-            # 4. Добавляем в кумулятивное смещение порта и обновляем индекс
-            active_history["phase_offset"] += delta
-            active_history["current_ref"] = new_ref
-            ref = new_ref
-            print(f"[{f_out.name}] Смена референса: {old_ref} -> {new_ref}. Офсет: {active_history['phase_offset']:.2f}")
+                best_idx = i
+        p_state["calib_ref"] = best_idx
+        p_state["active_ref"] = best_idx
+        print(f"[{port_key.upper()} CALIBRATION]: Выбран базовый референс №{best_idx} (Amp: {best_amp:.2f})")
 
-    # Строим матрицы отношений (CSI Ratio) относительно выбранного ref
+    base_ref = p_state["calib_ref"]
+    act_ref = p_state["active_ref"]
+
+    # 3. ДИНАМИЧЕСКИЙ МОНИТОРИНГ ЗАМИРАНИЙ
+    # Ищем, какая поднесущая объективно лучшая в ЭТОМ пакете
+    current_best_amp = 0.0
+    current_best_idx = act_ref
+    for i in range(10, 115):
+        if amplitudes[i] > current_best_amp:
+            current_best_amp = amplitudes[i]
+            current_best_idx = i
+
+    # Если текущий активный референс просел ниже порога замирания (например, упал ниже 10.0)
+    # И при этом есть альтернатива, которая в 1.5 раза лучше него текущего
+    if amplitudes[act_ref] < 10.0 and amplitudes[current_best_idx] > (amplitudes[act_ref] * 1.5):
+        old_ref = act_ref
+        new_ref = current_best_idx
+        
+        # Считаем геометрический скачок фазы между старым и новым референсом в сырых данных
+        raw_phase_old = math.degrees(math.atan2(Q[old_ref], I[old_ref]))
+        raw_phase_new = math.degrees(math.atan2(Q[new_ref], I[new_ref]))
+        delta = raw_phase_new - raw_phase_old
+        delta = (delta + 180.0) % 360.0 - 180.0 # Коррекция периода
+        
+        # Накапливаем смещение, чтобы график фазы не прыгал при смене опоры
+        p_state["phase_offset"] += delta
+        p_state["active_ref"] = new_ref
+        act_ref = new_ref
+        print(f"[{port_key.upper()} SWITCH]: Референс упал до {amplitudes[old_ref]:.1f}. Переключаемся {old_ref} -> {new_ref}")
+
+    # 4. МАТЕМАТИКА CSI RATIO (Всегда делим на стабильный базовый base_ref!)
+    In = []
+    Qn = []
+    ref_denom = I[base_ref]**2 + Q[base_ref]**2
+    if ref_denom == 0: ref_denom = 1e-6 # Защита от деления на ноль
+
     for i in range(len(amplitudes)):
-        Incurr = (I[i]*I[ref] + Q[i]*Q[ref]) / (I[ref]**2 + Q[ref]**2)
-        Qncurr = (Q[i]*I[ref] - I[i]*Q[ref]) / (I[ref]**2 + Q[ref]**2)
+        Incurr = (I[i] * I[base_ref] + Q[i] * Q[base_ref]) / ref_denom
+        Qncurr = (Q[i] * I[base_ref] - I[i] * Q[base_ref]) / ref_denom
         In.append(Incurr)
         Qn.append(Qncurr)
 
+    amplitudes_f = []
+    phases_f = []
     for i in range(len(amplitudes)):
-        Incurr = In[i]
-        Qncurr = Qn[i]
-        amplitudes_f.append(math.sqrt(Incurr**2 + Qncurr**2))
+        amp_calc = math.sqrt(In[i]**2 + Qn[i]**2)
+        # Считаем фазу после CSI Ratio и ДОБАВЛЯЕМ наш накопленный offset для убирания ступенек
+        phase_calc = math.degrees(math.atan2(Qn[i], In[i])) + p_state["phase_offset"]
         
-        # Вычисляем фазу относительно референса
-        rel_phase = math.degrees(math.atan2(Qncurr, Incurr))
-        
-        # --- ПРИМЕНЕНИЕ КОНСТАНТЫ СМЕЩЕНИЯ ---
-        # Корректируем фазу на накопленный офсет, убирая «ступеньку»
-        corrected_phase = rel_phase + active_history["phase_offset"]
-        
-        # Нормализуем итоговую фазу пакета, чтобы она оставалась в пределах [-180, 180]
-        corrected_phase = (corrected_phase + 180.0) % 360.0 - 180.0
-        
-        phases_f.append(corrected_phase)
+        amplitudes_f.append(amp_calc)
+        phases_f.append(phase_calc)
 
-    # # --- БЛОК ИНТЕРПОЛЯЦИИ С NUMPY И PANDAS ---
-    # global last_state_p1, last_state_p2
-    
-    # # Определяем активный буфер истории и состояние для текущего порта
-    # is_p1 = "csi_processed1" in f_out.name
-    # active_history = history_p1 if is_p1 else history_p2
-    # state = last_state_p1 if is_p1 else last_state_p2
-
-    # current_ts = pd.to_datetime(timestamp)
-    # dt_expected = 1.0 / SAMPLE_RATE  # ~0.013333 сек
-
-    # if state["ts"] is not None:
-    #     delta_t = (current_ts - state["ts"]).total_seconds()
-        
-    #     # Если пропуск больше, чем 1.5 ожидаемых интервала, фиксируем потерю пакетов
-    #     if delta_t > 1.5 * dt_expected:
-    #         num_missing = int(round(delta_t / dt_expected)) - 1
-            
-    #         # Защита от "залипаний": если связь пропала надолго, не генерируем миллионы точек
-    #         num_missing = min(num_missing, 150)  # максимум 2 секунды пропуска
-            
-    #         if num_missing > 0:
-    #             # Сетка весов от 0 до 1 для линейной интерполяции векторов
-    #             grid = np.linspace(0, 1, num_missing + 2)[1:-1]
-                
-    #             # Превращаем списки в массивы NumPy для векторных операций
-    #             old_amp = np.array(state["amp"])
-    #             new_amp = np.array(amplitudes_f)
-    #             old_phase = np.array(state["phase"])
-    #             new_phase = np.array(unwrapped_phases)
-
-    #             for step in range(num_missing):
-    #                 weight = grid[step]
-                    
-    #                 # Быстрая линейная интерполяция векторов для всех 52 поднесущих
-    #                 interp_amp = (1 - weight) * old_amp + weight * new_amp
-    #                 interp_phase = (1 - weight) * old_phase + weight * new_phase
-                    
-    #                 # 1. Добавляем виртуальную точку в историю дек (сохраняем равномерный шаг для фильтра)
-    #                 for idx in range(len(interp_amp)):
-    #                     active_history["amp"][idx].append(interp_amp[idx])
-    #                     active_history["phase"][idx].append(interp_phase[idx])
-                    
-    #                 # 2. Вычисляем виртуальный таймстамп для записи в CSV
-    #                 interp_ts_val = state["ts"] + pd.Timedelta(seconds=(step + 1) * dt_expected)
-    #                 interp_ts_str = interp_ts_val.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-                    
-    #                 # Записываем интерполированную строку в файл (без фильтрации, просто чтобы не было дыр)
-    #                 line_interp = f"{interp_ts_str},"
-    #                 for subcarrier_index in range(len(interp_amp)):
-    #                     line_interp += f"{interp_amp[subcarrier_index]},{interp_phase[subcarrier_index]},"
-    #                 f_out.write(line_interp + "\n")
-
-    # # Обновляем глобальное состояние последней "честной" точки
-    # state["ts"] = current_ts
-    # state["amp"] = amplitudes_f
-    # state["phase"] = unwrapped_phases
-    # # --- КОНЕЦ БЛОКА ИНТЕРПОЛЯЦИИ ---
-
+    # 5. СГЛАЖИВАНИЕ ВО ВРЕМЕНИ И ЗАПИСЬ
     ready_amplitudes = []
     ready_phases = []
 
     for idx in range(len(amplitudes_f)):
-        # 1. Сначала сохраняем текущее значение (частотно-развернутое) в историю времени
         active_history["amp"][idx].append(amplitudes_f[idx])
         active_history["phase"][idx].append(phases_f[idx])
 
         amp_series = list(active_history["amp"][idx])
         phase_series = list(active_history["phase"][idx])
 
-        # 2. Делаем развёртку ВО ВРЕМЕНИ для накопленной истории этой поднесущей
         if len(phase_series) > 1:
             phase_series_unwrapped = np.unwrap(phase_series, period=360)
-            
-            # --- Санитация фазы во времени (Detrending) ---
-            # Индексы массива выступают в роли временной шкалы
-            t_idx = np.arange(len(phase_series_unwrapped))
-            
-            # Находим линейный тренд (наклон 'a' и смещение 'b') методом наименьших квадратов
-            a, b = np.polyfit(t_idx, phase_series_unwrapped, 1)
-            
-            # Вычитаем линейный тренд, убирая дрейф от CFO/SFO
-            phase_series_unwrapped = phase_series_unwrapped - (a * t_idx + b)
-            
-            # Текущая развернутая и санированная фаза — это ПОСЛЕДНИЙ элемент
-            current_unwrapped_phase = phase_series_unwrapped[-1]
         else:
             phase_series_unwrapped = phase_series
-            current_unwrapped_phase = phase_series[0] if len(phase_series) > 0 else 0
 
-        # 3. Фильтрация (передаем весь развернутый вектор)
+        current_unwrapped_phase = phase_series_unwrapped[-1]
+
         if FILTER_ENABLED and len(amp_series) > 30:
             try:
                 filtered_amps = bandpass_filter_fast(amp_series)
-                # Превращаем ndarray от numpy обратно в list для вашего фильтра
                 filtered_phases = bandpass_filter_fast(list(phase_series_unwrapped))
-                
-                # Забираем последние (актуальные для этого шага) отфильтрованные точки
                 ready_amplitudes.append(filtered_amps[-1])
                 ready_phases.append(filtered_phases[-1])
             except Exception:
@@ -504,14 +401,14 @@ def raw_csi_to_amp_phase(msg, f_out):
             ready_amplitudes.append(amplitudes_f[idx])
             ready_phases.append(current_unwrapped_phase)
 
-
-    # Запись в уже открытый дескриптор файла f_out (без повторного open/close)
+    # Запись результатов в CSV
     line = f"{timestamp},"
     for subcarrier_index in range(len(amplitudes)):
         amp = ready_amplitudes[subcarrier_index]
         ph = ready_phases[subcarrier_index]
         line += f"{amp},{ph},"
     f_out.write(line + "\n")
+    
     return amplitudes_f, ready_amplitudes, phase_series_unwrapped, ready_phases
 
 
