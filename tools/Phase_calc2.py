@@ -335,7 +335,7 @@ def raw_csi_to_amp_phase(msg, f_out_butter, f_out_savgol):
     except Exception:
         t_curr = time.time()
     
-    port_key = "csi_processed1" if "csi_processed1" in f_out.name else "csi_processed2"
+    port_key = "csi_processed1" if "csi_processed1" in f_out_butter.name else "csi_processed2"
     p_state = reference_states[port_key]
     active_history = history_p1 if port_key == "csi_processed1" else history_p2
 
@@ -463,104 +463,114 @@ def raw_csi_to_amp_phase(msg, f_out_butter, f_out_savgol):
         else:
             phase_to_filter = unwrapped_phases
 
-    # Фильтрация «на лету» Баттервортом (SOS)
-    if FILTER_ENABLED:
-        target_dt = 1.0 / SAMPLE_RATE  # Строго 0.02 сек
+# === ПАРАЛЛЕЛЬНАЯ ФИЛЬТРАЦИЯ ===
+    # Нам нужны базовые данные в любом случае:
+    ready_amplitudes_butter = amplitudes_f.copy()
+    ready_phases_butter = phase_to_filter.copy()
+    ready_amplitudes_sg = amplitudes_f.copy()
+    ready_phases_sg = phase_to_filter.copy()
+
+# Если включен любой из фильтров, запускаем логику 50Hz интерполяции
+    if FILTER_ENABLED or SAVGOL_ENABLED:
+        target_dt = 1.0 / SAMPLE_RATE  
         
-        # Если это первый пакет для данного порта, инициализируем временную сетку
         if "next_target_ts" not in active_history:
             active_history["next_target_ts"] = t_curr
             active_history["last_ts"] = t_curr
             active_history["last_amp_med"] = amplitudes_f.copy()
             active_history["last_phase_med"] = phase_to_filter.copy()
             
-            # Прогоняем первый сэмпл (формат (1, 128), фильтруем по оси 0)
             amp_in = amplitudes_f.reshape(1, 128)
             phase_in = phase_to_filter.reshape(1, 128)
             
-            amp_out, active_history["zi_amp"] = sosfilt(SOS_BAND, amp_in, axis=0, zi=active_history["zi_amp"])
-            phase_out, active_history["zi_phase"] = sosfilt(SOS_BAND, phase_in, axis=0, zi=active_history["zi_phase"])
-            
-            ready_amplitudes = amp_out[0]
-            ready_phases = phase_out[0]
-            
-            active_history["last_filtered_amp"] = ready_amplitudes.copy()
-            active_history["last_filtered_phase"] = ready_phases.copy()
+            # Инициализация и первый прогон Баттерворта
+            if FILTER_ENABLED:
+                amp_out_bw, active_history["zi_amp"] = sosfilt(SOS_BAND, amp_in, axis=0, zi=active_history.get("zi_amp"))
+                phase_out_bw, active_history["zi_phase"] = sosfilt(SOS_BAND, phase_in, axis=0, zi=active_history.get("zi_phase"))
+                ready_amplitudes_butter = amp_out_bw[0]
+                ready_phases_butter = phase_out_bw[0]
+                active_history["last_filtered_amp"] = ready_amplitudes_butter.copy()
+                active_history["last_filtered_phase"] = ready_phases_butter.copy()
+
+            # Инициализация и первый прогон Савицкого-Голея
+            if SAVGOL_ENABLED:
+                zi_sg_base = lfilter_zi(SG_COEFFS, [1.0])
+                active_history["zi_amp_sg"] = zi_sg_base[:, np.newaxis] * amplitudes_f[np.newaxis, :]
+                active_history["zi_phase_sg"] = zi_sg_base[:, np.newaxis] * phase_to_filter[np.newaxis, :]
+                
+                amp_out_sg, active_history["zi_amp_sg"] = lfilter(SG_COEFFS, [1.0], amp_in, axis=0, zi=active_history["zi_amp_sg"])
+                phase_out_sg, active_history["zi_phase_sg"] = lfilter(SG_COEFFS, [1.0], phase_in, axis=0, zi=active_history["zi_phase_sg"])
+                
+                ready_amplitudes_sg = amp_out_sg[0]
+                ready_phases_sg = phase_out_sg[0]
+                active_history["last_sg_amp"] = ready_amplitudes_sg.copy()
+                active_history["last_sg_phase"] = ready_phases_sg.copy()
+
         else:
             t_prev = active_history["last_ts"]
             amp_prev = active_history["last_amp_med"]
             phase_prev = active_history["last_phase_med"]
             
-            amp_curr = amplitudes_f
-            phase_curr = phase_to_filter
-            
             interpolated_amps = []
             interpolated_phases = []
             
-            # Генерируем пропущенные отсчеты строго с шагом 20мс
             while active_history["next_target_ts"] <= t_curr:
                 t_target = active_history["next_target_ts"]
-                
-                # Защита от деления на ноль при дублях меток времени
-                if t_curr > t_prev:
-                    alpha = (t_target - t_prev) / (t_curr - t_prev)
-                    alpha = np.clip(alpha, 0.0, 1.0) # Ограничиваем вес
-                else:
-                    alpha = 1.0
-                    
-                # Линейная интерполяция амплитуды и фазы
-                amp_interp = amp_prev + alpha * (amp_curr - amp_prev)
-                phase_interp = phase_prev + alpha * (phase_curr - phase_prev)
-                
-                interpolated_amps.append(amp_interp)
-                interpolated_phases.append(phase_interp)
-                
-                # Сдвигаем виртуальные часы вперед на 20мс
+                alpha = np.clip((t_target - t_prev) / (t_curr - t_prev), 0.0, 1.0) if t_curr > t_prev else 1.0
+                interpolated_amps.append(amp_prev + alpha * (amplitudes_f - amp_prev))
+                interpolated_phases.append(phase_prev + alpha * (phase_to_filter - phase_prev))
                 active_history["next_target_ts"] += target_dt
             
-            # Обновляем историю координат для следующего пакета
             active_history["last_ts"] = t_curr
-            active_history["last_amp_med"] = amp_curr.copy()
-            active_history["last_phase_med"] = phase_curr.copy()
+            active_history["last_amp_med"] = amplitudes_f.copy()
+            active_history["last_phase_med"] = phase_to_filter.copy()
             
             if len(interpolated_amps) > 0:
-                # Векторизованно прогоняем все накопленные 50Гц отсчеты через IIR-фильтр
-                amp_in = np.vstack(interpolated_amps)     # shape (N, 128)
-                phase_in = np.vstack(interpolated_phases) # shape (N, 128)
+                amp_in = np.vstack(interpolated_amps)
+                phase_in = np.vstack(interpolated_phases)
                 
-                amp_out, active_history["zi_amp"] = sosfilt(SOS_BAND, amp_in, axis=0, zi=active_history["zi_amp"])
-                phase_out, active_history["zi_phase"] = sosfilt(SOS_BAND, phase_in, axis=0, zi=active_history["zi_phase"])
-                
-                # Для записи в CSV отдаем самый последний валидный 50Гц отсчет
-                ready_amplitudes = amp_out[-1]
-                ready_phases = phase_out[-1]
-                
-                active_history["last_filtered_amp"] = ready_amplitudes.copy()
-                active_history["last_filtered_phase"] = ready_phases.copy()
+                # Потоковый прогон Баттерворта
+                if FILTER_ENABLED:
+                    amp_out_bw, active_history["zi_amp"] = sosfilt(SOS_BAND, amp_in, axis=0, zi=active_history["zi_amp"])
+                    phase_out_bw, active_history["zi_phase"] = sosfilt(SOS_BAND, phase_in, axis=0, zi=active_history["zi_phase"])
+                    ready_amplitudes_butter = amp_out_bw[-1]
+                    ready_phases_butter = phase_out_bw[-1]
+                    active_history["last_filtered_amp"] = ready_amplitudes_butter.copy()
+                    active_history["last_filtered_phase"] = ready_phases_butter.copy()
+
+                # Потоковый прогон Савицкого-Голея
+                if SAVGOL_ENABLED:
+                    amp_out_sg, active_history["zi_amp_sg"] = lfilter(SG_COEFFS, [1.0], amp_in, axis=0, zi=active_history["zi_amp_sg"])
+                    phase_out_sg, active_history["zi_phase_sg"] = lfilter(SG_COEFFS, [1.0], phase_in, axis=0, zi=active_history["zi_phase_sg"])
+                    ready_amplitudes_sg = amp_out_sg[-1]
+                    ready_phases_sg = phase_out_sg[-1]
+                    active_history["last_sg_amp"] = ready_amplitudes_sg.copy()
+                    active_history["last_sg_phase"] = ready_phases_sg.copy()
             else:
-                # Если пакет пришел слишком быстро (< 20мс), новые отсчеты для фильтра не сгенерировались.
-                # Мы не дергаем фильтр (чтобы не сбить математику), а отдаем предыдущее сглаженное значение.
-                ready_amplitudes = active_history["last_filtered_amp"].copy()
-                ready_phases = active_history["last_filtered_phase"].copy()
+                if FILTER_ENABLED:
+                    ready_amplitudes_butter = active_history["last_filtered_amp"].copy()
+                    ready_phases_butter = active_history["last_filtered_phase"].copy()
+                if SAVGOL_ENABLED:
+                    ready_amplitudes_sg = active_history["last_sg_amp"].copy()
+                    ready_phases_sg = active_history["last_sg_phase"].copy()
 
-    else:
-        ready_amplitudes = amplitudes_f.copy()
-        ready_phases = phase_to_filter.copy()  # <-- ИСПОЛЬЗУЕМ ФАЗУ ПОСЛЕ МЕДИАНЫ
+    # Жестко обнуляем невалидные поднесущие в обоих массивах
+    ready_amplitudes_butter[~VALID_MASK] = 0.0
+    ready_phases_butter[~VALID_MASK] = 0.0
+    ready_amplitudes_sg[~VALID_MASK] = 0.0
+    ready_phases_sg[~VALID_MASK] = 0.0
 
-    # Жестко обнуляем невалидные поднесущие
-    ready_amplitudes[~VALID_MASK] = 0.0
-    ready_phases[~VALID_MASK] = 0.0
+    # Запись в файл Баттерворта
+    vals_bw = [f"{ready_amplitudes_butter[i]:.3f},{ready_phases_butter[i]:.3f}" for i in range(128)]
+    f_out_butter.write(f"{timestamp}," + ",".join(vals_bw) + "\n")
 
-    # Сохраняем отфильтрованную медианой фазу в историю для совместимости
-    active_history["phase"][act_ref].append(phase_to_filter[act_ref])
-    phase_series_unwrapped = list(active_history["phase"][act_ref])
+    # Запись в файл Савицкого-Голея
+    vals_sg = [f"{ready_amplitudes_sg[i]:.3f},{ready_phases_sg[i]:.3f}" for i in range(128)]
+    f_out_savgol.write(f"{timestamp}," + ",".join(vals_sg) + "\n")
 
-    # Оптимизированная строковая запись через .join()
-    vals = [f"{ready_amplitudes[i]:.3f},{ready_phases[i]:.3f}" for i in range(128)]
-    line = f"{timestamp}," + ",".join(vals) + "\n"
-    f_out.write(line)
+    return amplitudes_f.tolist(), ready_amplitudes_butter.tolist(), phase_to_filter.tolist(), ready_phases_butter.tolist()
 
-    return amplitudes_f.tolist(), ready_amplitudes.tolist(), phase_series_unwrapped, ready_phases.tolist()
+
 
 class RadarController:
     def __init__(self, port1, port2):
@@ -611,24 +621,25 @@ if __name__ == "__main__":
     ref = 0
     amp_ref = 1.0
 
-    processed_file1 = 'log/csi_processed1.csv'
-    processed_file2 = 'log/csi_processed2.csv'
     os.makedirs('log', exist_ok=True)
+
+    file_p1_butter = 'log/csi_processed1_butter.csv'
+    file_p1_savgol = 'log/csi_processed1_savgol.csv'
+    file_p2_butter = 'log/csi_processed2_butter.csv'
+    file_p2_savgol = 'log/csi_processed2_savgol.csv'
+
 
 
     headers = ["time_stamp"]
-    
-    # Генерируем подписи для каждой из 128 поднесущих (от -64 до 63)
     for i in range(128):
-        subcarrier_num = i
-        headers.append(f"amp_sub_{subcarrier_num}")
-        headers.append(f"phase_sub_{subcarrier_num}")
+        headers.extend([f"amp_sub_{i}", f"phase_sub_{i}"])
 
 
-    for f_name in [processed_file1, processed_file2]:
+    # Инициализация заголовков во всех 4 файлах
+    for f_name in [file_p1_butter, file_p1_savgol, file_p2_butter, file_p2_savgol]:
         with open(f_name, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(headers)
+            csv.writer(f).writerow(headers)
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-p1', '--port1', required=True)
@@ -658,9 +669,11 @@ if __name__ == "__main__":
 
     print("--- Система запущена ---")
 
-    # Открываем дескрипторы файлов один раз на весь период работы программы
-    f_out1 = open(processed_file1, 'a', newline='', encoding='utf-8')
-    f_out2 = open(processed_file2, 'a', newline='', encoding='utf-8')
+    # Открываем 4 дескриптора на дозапись
+    f_out1_bw = open(file_p1_butter, 'a', newline='', encoding='utf-8')
+    f_out1_sg = open(file_p1_savgol, 'a', newline='', encoding='utf-8')
+    f_out2_bw = open(file_p2_butter, 'a', newline='', encoding='utf-8')
+    f_out2_sg = open(file_p2_savgol, 'a', newline='', encoding='utf-8')
 
     try:
         while True:
@@ -668,9 +681,8 @@ if __name__ == "__main__":
             try:
                 msg1 = controller.queue_read1.get(timeout=0.05)
                 t = msg1.get('type', 'Unknown')
-                
                 if t == 'CSI_DATA':
-                    raw_csi_to_amp_phase(msg1, f_out1)
+                    raw_csi_to_amp_phase(msg1, f_out1_bw, f_out1_sg)
                     #print(f"[P1]: {t} обработано и записано")
                 elif t == 'LOG_DATA':
                     print(f"[P1]: LOG - {msg1.get('data')}")
@@ -685,7 +697,7 @@ if __name__ == "__main__":
                 t = msg2.get('type', 'Unknown')
                 
                 if t == 'CSI_DATA':
-                    raw_csi_to_amp_phase(msg2, f_out2)
+                    raw_csi_to_amp_phase(msg2, f_out2_bw, f_out2_sg)
                     #print(f"[P2]: {t} обработано и записано")
                 elif t == 'LOG_DATA':
                     print(f"[P2]: LOG - {msg2.get('data')}")
@@ -697,8 +709,10 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nОстановка...")
     finally:
-        f_out1.close()
-        f_out2.close()
+        f_out1_bw.close()
+        f_out1_sg.close()
+        f_out2_bw.close()
+        f_out2_sg.close()
         controller.p1.terminate()
         controller.p2.terminate()
     print("Запустите файл gui_visualizer.py для отображения интерфейса.")
