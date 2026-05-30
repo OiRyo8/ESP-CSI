@@ -32,7 +32,7 @@
 #define WIFI_PASS "F9IRDQ006868"
 
 #define CONFIG_LESS_INTERFERENCE_CHANNEL 11
-#define CONFIG_SEND_DATA_FREQUENCY       100
+#define CONFIG_SEND_DATA_FREQUENCY       50
 
 static const char *TAG = "csi_collector";
 static QueueHandle_t g_csi_info_queue = NULL;
@@ -128,13 +128,19 @@ static void csi_data_print_task(void *arg)
 {
 	uint8_t agc_gain = 0;
 	int8_t fft_gain = 0;
-	
+    
 	wifi_csi_info_t *info = NULL;
-	char *buffer = malloc(8 * 1024);
 	uint32_t count = 0;
 
-	if (!buffer) {
-		ESP_LOGE(TAG, "Failed to allocate print buffer");
+	// 1. ВЫДЕЛЯЕМ ПАМЯТЬ ОДИН РАЗ ДО ЦИКЛА
+	char *buffer = malloc(8 * 1024);
+	size_t max_b64_len = 2048; // С запасом для любых пакетов CSI
+	char *b64_buf = malloc(max_b64_len);
+
+	if (!buffer || !b64_buf) {
+		ESP_LOGE(TAG, "Failed to allocate print buffers");
+		if (buffer) free(buffer);
+		if (b64_buf) free(b64_buf);
 		vTaskDelete(NULL);
 		return;
 	}
@@ -144,71 +150,57 @@ static void csi_data_print_task(void *arg)
 		wifi_pkt_rx_ctrl_t *rx_ctrl = &info->rx_ctrl;
 
 		esp_csi_gain_ctrl_get_rx_gain(rx_ctrl, &agc_gain, &fft_gain);
-		
-		// Заголовок при первом пакете (адаптирован под структуру колонок в Python)
+        
 		if (count == 0) {
 			ESP_LOGI(TAG, "================ CSI RECV ================");
 			len += sprintf(buffer + len, "type,seq,timestamp,taget_seq,taget,mac,rssi,rate,sig_mode,mcs,cwb,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel_primary,channel_secondary,local_timestamp,ant,sig_len,rx_state,agc_gain,fft_gain,len,first_word_invalid,data\n");
 		}
 
-		// Расчет размера буфера под Base64 и выделение памяти
-		size_t max_b64_len = (info->len * 4 / 3) + 4;
-		char *b64_buf = malloc(max_b64_len);
-		if (!b64_buf) {
-			free(info);
-			continue;
-		}
-
 		size_t out_len = 0;
-		// Кодируем знаковые int8_t сырых данных как бинарный поток байт
+		// 2. ИСПОЛЬЗУЕМ ПРЕАЛЛОЦИРОВАННЫЙ БУФЕР (нет фрагментации кучи)
 		int ret = mbedtls_base64_encode((unsigned char *)b64_buf, max_b64_len, &out_len, (const unsigned char *)info->buf, info->len);
-		
+        
 		if (ret != 0) {
-			free(b64_buf);
 			free(info);
 			continue;
 		}
-		b64_buf[out_len] = '\0'; // Добавляем нуль-терминатор для строки
+		b64_buf[out_len] = '\0'; 
 
-		// Формируем ровно 30 колонок, разделенных запятыми
 		len += sprintf(buffer + len,
 			"CSI_DATA,%lu,%lu,0,unknown," MACSTR ",%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%lu,%d,%d,%d,%d,%d,%d,0,%s\n",
-			count++,                     // seq
-			esp_log_timestamp(),         // timestamp (скрипт перезапишет его на системный, если не распарсит)
-			MAC2STR(info->mac),          // mac
-			rx_ctrl->rssi,               // rssi
-			rx_ctrl->rate,               // rate
-			rx_ctrl->sig_mode,           // sig_mode
-			rx_ctrl->mcs,                // mcs
-			rx_ctrl->cwb,                // cwb
-			rx_ctrl->smoothing,          // smoothing
-			rx_ctrl->not_sounding,       // not_sounding
-			rx_ctrl->aggregation,        // aggregation
-			rx_ctrl->stbc,               // stbc
-			rx_ctrl->fec_coding,         // fec_coding
-			rx_ctrl->sgi,                // sgi
-			rx_ctrl->noise_floor,        // noise_floor
-			rx_ctrl->ampdu_cnt,          // ampdu_cnt
-			rx_ctrl->channel,            // channel_primary
-			rx_ctrl->secondary_channel,  // channel_secondary
-			rx_ctrl->timestamp,          // local_timestamp
-			rx_ctrl->ant,                // ant
-			rx_ctrl->sig_len,            // sig_len
-			rx_ctrl->rx_state,           // rx_state
-			agc_gain,           // agc_gain (передаем реальное значение для фазовых расчетов!)
-			fft_gain,                  // захардкожен 0
-			info->len,                   // len
-			//first_word_invalid        // захардкожен 0
-			b64_buf                      // data (Base64 строка)
-		);
+			count++,
+			esp_log_timestamp(),
+			MAC2STR(info->mac),
+			rx_ctrl->rssi,
+			rx_ctrl->rate,
+			rx_ctrl->sig_mode,
+			rx_ctrl->mcs,
+			rx_ctrl->cwb,
+			rx_ctrl->smoothing,
+			rx_ctrl->not_sounding,
+			rx_ctrl->aggregation,
+			rx_ctrl->stbc,
+			rx_ctrl->fec_coding,
+			rx_ctrl->sgi,
+			rx_ctrl->noise_floor,
+			rx_ctrl->ampdu_cnt,
+			rx_ctrl->channel,
+			rx_ctrl->secondary_channel,
+			rx_ctrl->timestamp,
+			rx_ctrl->ant,
+			rx_ctrl->sig_len,
+			rx_ctrl->rx_state,
+			agc_gain,
+			fft_gain,
+			info->len,
+			b64_buf);
 
 		printf("%s", buffer);
-		
-		free(b64_buf);
-		free(info);
+		free(info); // Освобождаем только структуру, пришедшую из очереди
 	}
 
 	free(buffer);
+	free(b64_buf);
 	vTaskDelete(NULL);
 }
 

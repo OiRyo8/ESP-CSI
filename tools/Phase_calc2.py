@@ -18,13 +18,27 @@ from collections import deque
 import numpy as np
 import pandas as pd
 
+# Набор инвалидных поднесущих
+INVALID_SUBCARRIERS = set(range(0, 11)) | set(range(27, 38)) | set(range(62, 66)) | set(range(91, 102)) | set(range(117, 128))
+# Булев массив маски (True для полезных, False для пустых)
+VALID_MASK = np.array([i not in INVALID_SUBCARRIERS for i in range(128)])
 
-# --- Butterworth bandpass filter helper ---
+from scipy.signal import butter, sosfilt
+
+# --- Butterworth bandpass filter helper (Потоковый SOS-вариант) ---
 FILTER_ENABLED = True
 FILTER_LOW_HZ = 0.1
 FILTER_HIGH_HZ = 10
 FILTER_ORDER = 4
-SAMPLE_RATE = 100
+SAMPLE_RATE = 50
+
+if FILTER_ENABLED:
+    # Используем output='sos' вместо output='ba'
+    SOS_BAND = butter(FILTER_ORDER, [FILTER_LOW_HZ, FILTER_HIGH_HZ], btype='band', fs=SAMPLE_RATE, output='sos')
+    N_SECTIONS = SOS_BAND.shape[0]
+else:
+    SOS_BAND = None
+    N_SECTIONS = 0
 
 HISTORY_DEPTH = 200 
 
@@ -120,6 +134,8 @@ def serial_handle(queue_read, queue_write, port):
     # чтобы последующие стартовые команды из очереди не были стерты ребутом.
     time.sleep(3.5)
     
+    flush_counter = 0
+
     try:
         while True:
             # Обработка команд на запись в порт
@@ -186,7 +202,10 @@ def serial_handle(queue_read, queue_write, port):
 
                         row_to_write = [data_dict.get(col, '') for col in cfg["cols"]]
                         writers[cfg["type"]].writerow(row_to_write)
-                        files_fds[cfg["type"]].flush()
+
+                        flush_counter += 1
+                        if flush_counter % 100 == 0:
+                            files_fds[cfg["type"]].flush()
 
                         if not queue_read.full():
                             queue_read.put(data_dict)
@@ -286,131 +305,139 @@ def raw_csi_to_amp_phase(msg, f_out):
     raw_data = msg['data']
     timestamp = msg.get('timestamp', 'No_Time') 
     
-    # Определяем, с каким файлом/портом работаем
     port_key = "csi_processed1" if "csi_processed1" in f_out.name else "csi_processed2"
     p_state = reference_states[port_key]
     active_history = history_p1 if port_key == "csi_processed1" else history_p2
 
-    I = []
-    Q = []
-    amplitudes = []
-    amplitudessqr = []
+    # 1. Векторизованное извлечение сырых I/Q
+    raw_np = np.array(raw_data, dtype=np.int8)
+    
+    # Учитываем, что массив может быть короче 256 байт. Ограничиваем 128 поднесущими (256 байт)
+    max_sub = min(len(raw_np) // 2, 128)
+    I = np.zeros(128, dtype=np.float32)
+    Q = np.zeros(128, dtype=np.float32)
+    
+    I[:max_sub] = raw_np[0:max_sub*2:2]
+    Q[:max_sub] = raw_np[1:max_sub*2:2]
 
-    # 1. Извлекаем сырые I/Q и считаем честные сырые амплитуды
-    for i in range(0, len(raw_data), 2):
-        curr_i = raw_data[i]
-        curr_q = raw_data[i+1]
-        I.append(curr_i)
-        Q.append(curr_q)
-        amplitudes.append(math.sqrt(curr_i**2 + curr_q**2))
-        amplitudessqr.append(curr_i**2 + curr_q**2)
+    # Векторный расчет амплитуд
+    amplitudes = np.sqrt(I**2 + Q**2)
+    
+    # Исключение пустых/защитных поднесущих (обнуляем, чтобы не ломали референсы)
+    amplitudes[~VALID_MASK] = 0.0
 
-    # 2. ПЕРВАЯ КАЛИБРОВКА: Если это самый первый пакет, ищем глобально лучший референс
+    # 2. ПЕРВАЯ КАЛИБРОВКА: Векторный поиск референса
     if p_state["calib_ref"] is None:
-        best_amp = 0.0
-        best_idx = 6
-        # Ищем в стабильной зоне (пропускаем крайние затухающие поднесущие)
-        for i in range(10, 115):
-            if amplitudes[i] > best_amp:
-                best_amp = amplitudes[i]
-                best_idx = i
+        # Ищем максимум только в стабильной зоне (10-115)
+        search_zone = amplitudes[10:115]
+        best_idx = int(np.argmax(search_zone) + 10)
         p_state["calib_ref"] = best_idx
         p_state["active_ref"] = best_idx
-        print(f"[{port_key.upper()} CALIBRATION]: Выбран базовый референс №{best_idx} (Amp: {best_amp:.2f})")
+        print(f"[{port_key.upper()} CALIBRATION]: Выбран базовый референс №{best_idx} (Amp: {amplitudes[best_idx]:.2f})")
 
     base_ref = p_state["calib_ref"]
     act_ref = p_state["active_ref"]
 
-    # 3. ДИНАМИЧЕСКИЙ МОНИТОРИНГ ЗАМИРАНИЙ
-    # Ищем, какая поднесущая объективно лучшая в ЭТОМ пакете
-    current_best_amp = 0.0
-    current_best_idx = act_ref
-    for i in range(10, 115):
-        if amplitudes[i] > current_best_amp:
-            current_best_amp = amplitudes[i]
-            current_best_idx = i
-
-    # Если текущий активный референс просел ниже порога замирания (например, упал ниже 10.0)
-    # И при этом есть альтернатива, которая в 1.5 раза лучше него текущего
+    # 3. ДИНАМИЧЕСКИЙ МОНИТОРИНГ ЗАМИРАНИЙ (Векторизованно)
+    current_best_idx = int(np.argmax(amplitudes[10:115]) + 10)
+    
     if amplitudes[act_ref] < 10.0 and amplitudes[current_best_idx] > (amplitudes[act_ref] * 1.5):
         old_ref = act_ref
         new_ref = current_best_idx
         
-        # Считаем геометрический скачок фазы между старым и новым референсом в сырых данных
-        raw_phase_old = math.degrees(math.atan2(Q[old_ref], I[old_ref]))
-        raw_phase_new = math.degrees(math.atan2(Q[new_ref], I[new_ref]))
+        raw_phase_old = np.degrees(np.arctan2(Q[old_ref], I[old_ref]))
+        raw_phase_new = np.degrees(np.arctan2(Q[new_ref], I[new_ref]))
         delta = raw_phase_new - raw_phase_old
-        delta = (delta + 180.0) % 360.0 - 180.0 # Коррекция периода
+        delta = (delta + 180.0) % 360.0 - 180.0 
         
-        # Накапливаем смещение, чтобы график фазы не прыгал при смене опоры
         p_state["phase_offset"] += delta
         p_state["active_ref"] = new_ref
         act_ref = new_ref
         print(f"[{port_key.upper()} SWITCH]: Референс упал до {amplitudes[old_ref]:.1f}. Переключаемся {old_ref} -> {new_ref}")
 
-    # 4. МАТЕМАТИКА CSI RATIO (Всегда делим на стабильный базовый base_ref!)
-    In = []
-    Qn = []
-    ref_denom = I[base_ref]**2 + Q[base_ref]**2
-    if ref_denom == 0: ref_denom = 1e-6 # Защита от деления на ноль
+    # 4. МАТЕМАТИКА CSI RATIO (Полная векторизация вместо цикла)
+    ref_I = I[base_ref]
+    ref_Q = Q[base_ref]
+    ref_denom = ref_I**2 + ref_Q**2
+    if ref_denom == 0: 
+        ref_denom = 1e-6 
 
-    for i in range(len(amplitudes)):
-        Incurr = (I[i] * I[base_ref] + Q[i] * Q[base_ref]) / ref_denom
-        Qncurr = (Q[i] * I[base_ref] - I[i] * Q[base_ref]) / ref_denom
-        In.append(Incurr)
-        Qn.append(Qncurr)
+    In = (I * ref_I + Q * ref_Q) / ref_denom
+    Qn = (Q * ref_I - I * ref_Q) / ref_denom
 
-    amplitudes_f = []
-    phases_f = []
-    for i in range(len(amplitudes)):
-        amp_calc = math.sqrt(In[i]**2 + Qn[i]**2)
-        # Считаем фазу после CSI Ratio и ДОБАВЛЯЕМ наш накопленный offset для убирания ступенек
-        phase_calc = math.degrees(math.atan2(Qn[i], In[i])) + p_state["phase_offset"]
+    amplitudes_f = np.sqrt(In**2 + Qn**2)
+    phases_f = np.degrees(np.arctan2(Qn, In)) + p_state["phase_offset"]
+
+    # Сброс пустых поднесущих после вычислений Ratio
+    amplitudes_f[~VALID_MASK] = 0.0
+    phases_f[~VALID_MASK] = 0.0
+
+# 5. МГНОВЕННОЕ СГЛАЖИВАНИЕ ВО ВРЕМЕНИ (ВЕКТОРНЫЙ SOS-ФИЛЬТР)
+    # Инициализируем структуры для хранения потокового состояния, если это первый пакет
+    if "is_first_packet" not in active_history:
+        active_history["is_first_packet"] = True
+        active_history["last_raw_phase"] = np.zeros(128, dtype=np.float32)
+        active_history["last_unwrapped_phase"] = np.zeros(128, dtype=np.float32)
+
+    if active_history["is_first_packet"]:
+        unwrapped_phases = phases_f.copy()
+        active_history["last_raw_phase"] = phases_f.copy()
+        active_history["last_unwrapped_phase"] = unwrapped_phases.copy()
         
-        amplitudes_f.append(amp_calc)
-        phases_f.append(phase_calc)
+        if FILTER_ENABLED:
+            from scipy.signal import sosfilt_zi
+            # Инициализация zi для подавления начальных скачков (переходного процесса)
+            zi_base = sosfilt_zi(SOS_BAND)  # Форма (n_sections, 2)
+            # Масштабируем zi под начальные значения всех 128 поднесущих
+            active_history["zi_amp"] = zi_base[:, np.newaxis, :] * amplitudes_f[np.newaxis, :, np.newaxis]
+            active_history["zi_phase"] = zi_base[:, np.newaxis, :] * unwrapped_phases[np.newaxis, :, np.newaxis]
+            
+        active_history["is_first_packet"] = False
+    else:
+        # Мгновенная векторная развертка фазы (time-domain phase unwrap) без циклов
+        delta_phase = phases_f - active_history["last_raw_phase"]
+        delta_phase_wrapped = (delta_phase + 180.0) % 360.0 - 180.0
+        unwrapped_phases = active_history["last_unwrapped_phase"] + delta_phase_wrapped
+        
+        # Сохраняем состояние для следующей итерации
+        active_history["last_raw_phase"] = phases_f.copy()
+        active_history["last_unwrapped_phase"] = unwrapped_phases.copy()
 
-    # 5. СГЛАЖИВАНИЕ ВО ВРЕМЕНИ И ЗАПИСЬ
-    ready_amplitudes = []
-    ready_phases = []
+    # Фильтрация «на лету»
+    if FILTER_ENABLED:
+        # sosfilt ожидает размерность времени по выбранной оси. Превращаем (128,) в (128, 1)
+        amp_in = amplitudes_f.reshape(128, 1)
+        phase_in = unwrapped_phases.reshape(128, 1)
+        
+        # Применяем фильтр и обновляем внутреннее состояние zi в истории порта
+        amp_out, active_history["zi_amp"] = sosfilt(SOS_BAND, amp_in, axis=-1, zi=active_history["zi_amp"])
+        phase_out, active_history["zi_phase"] = sosfilt(SOS_BAND, phase_in, axis=-1, zi=active_history["zi_phase"])
+        
+        # Возвращаем к плоскому массиву (128,)
+        ready_amplitudes = amp_out.flatten()
+        ready_phases = phase_out.flatten()
+    else:
+        ready_amplitudes = amplitudes_f.copy()
+        ready_phases = unwrapped_phases.copy()
 
-    for idx in range(len(amplitudes_f)):
-        active_history["amp"][idx].append(amplitudes_f[idx])
-        active_history["phase"][idx].append(phases_f[idx])
+    # Жестко обнуляем невалидные поднесущие, чтобы исключить вычислительный шум
+    ready_amplitudes[~VALID_MASK] = 0.0
+    ready_phases[~VALID_MASK] = 0.0
 
-        amp_series = list(active_history["amp"][idx])
-        phase_series = list(active_history["phase"][idx])
+    # Сохраняем unwrapped для совместимости возвращаемого значения (только для активного референса)
+    active_history["phase"][act_ref].append(unwrapped_phases[act_ref])
+    phase_series_unwrapped = list(active_history["phase"][act_ref])
 
-        if len(phase_series) > 1:
-            phase_series_unwrapped = np.unwrap(phase_series, period=360)
-        else:
-            phase_series_unwrapped = phase_series
-
-        current_unwrapped_phase = phase_series_unwrapped[-1]
-
-        if FILTER_ENABLED and len(amp_series) > 30:
-            try:
-                filtered_amps = bandpass_filter_fast(amp_series)
-                filtered_phases = bandpass_filter_fast(list(phase_series_unwrapped))
-                ready_amplitudes.append(filtered_amps[-1])
-                ready_phases.append(filtered_phases[-1])
-            except Exception:
-                ready_amplitudes.append(amplitudes_f[idx])
-                ready_phases.append(current_unwrapped_phase)
-        else:
-            ready_amplitudes.append(amplitudes_f[idx])
-            ready_phases.append(current_unwrapped_phase)
-
-    # Запись результатов в CSV
-    line = f"{timestamp},"
-    for subcarrier_index in range(len(amplitudes)):
-        amp = ready_amplitudes[subcarrier_index]
-        ph = ready_phases[subcarrier_index]
-        line += f"{amp},{ph},"
-    f_out.write(line + "\n")
+    # Оптимизированная строковая запись через .join() (существенно быстрее конкатенации +=)
+    vals = [f"{ready_amplitudes[i]:.3f},{ready_phases[i]:.3f}" for i in range(128)]
+    line = f"{timestamp}," + ",".join(vals) + "\n"
+    f_out.write(line)
     
-    return amplitudes_f, ready_amplitudes, phase_series_unwrapped, ready_phases
+    # Из-за буферизации мы убираем f_out.flush() отсюда, 
+    # Python сам сбросит блок на диск при заполнении буфера.
 
+    # Для совместимости возвращаем Python-списки
+    return amplitudes_f.tolist(), ready_amplitudes.tolist(), phase_series_unwrapped, ready_phases.tolist()
 
 class RadarController:
     def __init__(self, port1, port2):
@@ -506,9 +533,8 @@ if __name__ == "__main__":
     except Exception:
         pass
 
-    print("--- Система запущена (без Pandas/Numpy) ---")
-    print("Доступные команды: 'locate router', 'exit' или любые команды для CLI ESP32.")
-
+    print("--- Система запущена ---")
+    
     # Открываем дескрипторы файлов один раз на весь период работы программы
     f_out1 = open(processed_file1, 'a', newline='', encoding='utf-8')
     f_out2 = open(processed_file2, 'a', newline='', encoding='utf-8')
