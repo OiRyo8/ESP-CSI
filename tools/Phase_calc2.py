@@ -8,6 +8,7 @@ import base64
 import sys
 import os
 import csv
+import threading
 from io import StringIO
 import re
 import json
@@ -18,6 +19,8 @@ from collections import deque
 import numpy as np
 import pandas as pd
 from scipy.signal import butter, sosfilt, sosfilt_zi, savgol_coeffs, lfilter, lfilter_zi
+from csi_calibration import CSICalibrator
+from csi_analyzer import CSIAnalyzer
 
 # --- Butterworth bandpass filter helper (Потоковый SOS-вариант) ---
 FILTER_ENABLED = True
@@ -568,7 +571,7 @@ def raw_csi_to_amp_phase(msg, f_out_butter, f_out_savgol):
     vals_sg = [f"{ready_amplitudes_sg[i]:.3f},{ready_phases_sg[i]:.3f}" for i in range(128)]
     f_out_savgol.write(f"{timestamp}," + ",".join(vals_sg) + "\n")
 
-    return amplitudes_f.tolist(), ready_amplitudes_butter.tolist(), phase_to_filter.tolist(), ready_phases_butter.tolist()
+    return amplitudes_f.tolist(), ready_amplitudes_butter.tolist(), phase_to_filter.tolist(), ready_phases_butter.tolist(), ready_amplitudes_sg.tolist(), ready_phases_sg.tolist()
 
 
 
@@ -601,19 +604,43 @@ class RadarController:
         self.send_command(cmd)
 
 
-def input_thread_func(controller):
-    """Отдельный поток для чтения команд из консоли без блокировки основного цикла."""
+
+def console_input_thread(calibrator):
+    """Функция выполняется в отдельном потоке и ждет команд от пользователя"""
+    print("\n[ИНФО] Консоль управления активна. Доступные команды:")
+    print("  calibrate <секунды>  - Запустить калибровку пустого помещения (напр. calibrate 15)")
+    print("  status               - Проверить статус калибратора\n")
+    
     while True:
         try:
-            cmd = sys.stdin.readline().strip()
-            if not cmd: continue
-            if cmd == "exit":
-                print("Выход из программы...")
-                controller.send_command("exit")
-                break
+            # sys.stdin.readline() работает стабильнее в многопоточности, чем input()
+            user_input = sys.stdin.readline().strip()
+            if not user_input:
+                continue
+                
+            if user_input.startswith("calibrate"):
+                parts = user_input.split()
+                duration = 15 # по умолчанию 15 секунд
+                if len(parts) > 1:
+                    try:
+                        duration = int(parts[1])
+                    except ValueError:
+                        print("[ОШИБКА] Неверный формат времени. Используйте: calibrate 15")
+                        continue
+                
+                # Запускаем калибровку через объект калибратора
+                calibrator.start(duration_sec=duration)
+                
+            elif user_input == "status":
+                if calibrator.is_active:
+                    elapsed = time.time() - calibrator.start_time
+                    print(f"[СТАТУС] Идет калибровка... Прошло {elapsed:.1f}/{calibrator.duration} сек.")
+                else:
+                    print("[СТАТУС] Калибратор ожидает команду.")
             else:
-                controller.send_command(cmd)
-        except Exception:
+                print(f"[КОМАНДА] Неизвестная команда: '{user_input}'")
+        except Exception as e:
+            print(f"[КОМАНДА] Ошибка ввода: {e}")
             break
 
 
@@ -649,25 +676,36 @@ if __name__ == "__main__":
     controller = RadarController(args.port1, args.port2)
     controller.start()
 
-    # Запускаем интерактивный поток для обработки ввода пользователя из терминала
-    t_in = threading.Thread(target=input_thread_func, args=(controller,), daemon=True)
-    t_in.start()
+    # 1. Импортируем и создаем калибратор
+    from csi_calibration import CSICalibrator
+    calibrator = CSICalibrator(num_subcarriers=128)
+    
+    # Пытаемся загрузить старый бейзлайн, если он есть
+    calibrator.load_from_file()
+    
+    # 2. Запускаем фоновый поток для приема команд "calibrate"
+    input_thread = threading.Thread(target=console_input_thread, args=(calibrator,), daemon=True)
+    input_thread.start()
+
+    analyzer_p1 = CSIAnalyzer(port_id="p1", sample_rate=50, window_sec=10, update_interval_sec=1.0)
+    analyzer_p2 = CSIAnalyzer(port_id="p2", sample_rate=50, window_sec=10, update_interval_sec=1.0)
 
     # Сразу ставим команды инициализации в очередь. 
     # Благодаря time.sleep(3.5) внутри процессов, команды дождутся загрузки плат.
-    try:
-        with open('./config/gui_config.json', 'r', encoding='utf-8') as f:
-            cfg = json.load(f)
-            ssid = cfg.get('router_ssid', '').strip()
-            pwd = cfg.get('router_password', '').strip()
-            if ssid:
-                controller.send_command("radar --csi_output_type LLFT --csi_output_format base64")
-                controller.router_connect(ssid, pwd)
-                print(f"Стартовая конфигурация для SSID '{ssid}' отправлена в очередь ожидания.")
-    except Exception:
-        pass
+    # try:
+    #     with open('./config/gui_config.json', 'r', encoding='utf-8') as f:
+    #         cfg = json.load(f)
+    #         ssid = cfg.get('router_ssid', '').strip()
+    #         pwd = cfg.get('router_password', '').strip()
+    #         if ssid:
+    #             controller.send_command("radar --csi_output_type LLFT --csi_output_format base64")
+    #             controller.router_connect(ssid, pwd)
+    #             print(f"Стартовая конфигурация для SSID '{ssid}' отправлена в очередь ожидания.")
+    # except Exception:
+    #     pass
 
     print("--- Система запущена ---")
+
 
     # Открываем 4 дескриптора на дозапись
     f_out1_bw = open(file_p1_butter, 'a', newline='', encoding='utf-8')
@@ -682,8 +720,9 @@ if __name__ == "__main__":
                 msg1 = controller.queue_read1.get(timeout=0.05)
                 t = msg1.get('type', 'Unknown')
                 if t == 'CSI_DATA':
-                    raw_csi_to_amp_phase(msg1, f_out1_bw, f_out1_sg)
-                    #print(f"[P1]: {t} обработано и записано")
+                    amp_raw, amp_bw, phase_raw, phase_bw, amp_sg, phase_sg = raw_csi_to_amp_phase(msg1, f_out1_bw, f_out1_sg)
+                    calibrator.update(port_id=1, amp_bw=amp_bw, amp_sg=amp_sg)
+                    analyzer_p1.update(amp_bw=amp_bw, amp_sg=amp_sg, phase_bw=phase_bw, phase_sg=phase_sg)
                 elif t == 'LOG_DATA':
                     print(f"[P1]: LOG - {msg1.get('data')}")
                 elif t == 'FAIL_EVENT':
@@ -697,8 +736,9 @@ if __name__ == "__main__":
                 t = msg2.get('type', 'Unknown')
                 
                 if t == 'CSI_DATA':
-                    raw_csi_to_amp_phase(msg2, f_out2_bw, f_out2_sg)
-                    #print(f"[P2]: {t} обработано и записано")
+                    amp_raw, amp_bw, phase_raw, phase_bw, amp_sg, phase_sg = raw_csi_to_amp_phase(msg2, f_out2_bw, f_out2_sg)
+                    calibrator.update(port_id=2, amp_bw=amp_bw, amp_sg=amp_sg)
+                    analyzer_p2.update(amp_bw=amp_bw, amp_sg=amp_sg, phase_bw=phase_bw, phase_sg=phase_sg)
                 elif t == 'LOG_DATA':
                     print(f"[P2]: LOG - {msg2.get('data')}")
                 elif t == 'FAIL_EVENT':
