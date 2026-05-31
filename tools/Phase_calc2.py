@@ -692,17 +692,17 @@ if __name__ == "__main__":
 
     # Сразу ставим команды инициализации в очередь. 
     # Благодаря time.sleep(3.5) внутри процессов, команды дождутся загрузки плат.
-    # try:
-    #     with open('./config/gui_config.json', 'r', encoding='utf-8') as f:
-    #         cfg = json.load(f)
-    #         ssid = cfg.get('router_ssid', '').strip()
-    #         pwd = cfg.get('router_password', '').strip()
-    #         if ssid:
-    #             controller.send_command("radar --csi_output_type LLFT --csi_output_format base64")
-    #             controller.router_connect(ssid, pwd)
-    #             print(f"Стартовая конфигурация для SSID '{ssid}' отправлена в очередь ожидания.")
-    # except Exception:
-    #     pass
+    try:
+        with open('./config/gui_config.json', 'r', encoding='utf-8') as f:
+            cfg = json.load(f)
+            ssid = cfg.get('router_ssid', '').strip()
+            pwd = cfg.get('router_password', '').strip()
+            if ssid:
+                controller.send_command("radar --csi_output_type LLFT --csi_output_format base64")
+                controller.router_connect(ssid, pwd)
+                print(f"Стартовая конфигурация для SSID '{ssid}' отправлена в очередь ожидания.")
+    except Exception:
+        pass
 
     print("--- Система запущена ---")
 

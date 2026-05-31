@@ -7,6 +7,8 @@ class CSICalibrator:
     def __init__(self, num_subcarriers=128):
         self.num_subcarriers = num_subcarriers
         self.is_active = False
+        self.is_waiting = False  # Флаг состояния задержки перед стартом
+        self.delay_duration = 5  # Задержка в секундах (настройте под себя)
         self.start_time = 0
         self.duration = 0
         
@@ -26,35 +28,51 @@ class CSICalibrator:
         self.config_path = 'config/baseline.json'
 
     def start(self, duration_sec=15):
-        print(f"\n[КАЛИБРОВКА] Запуск сбора базовой линии на {duration_sec} секунд...")
-        print("[КАЛИБРОВКА] Пожалуйста, покиньте зону видимости радаров и не двигайтесь.")
-        self.is_active = True
-        self.duration = duration_sec
-        self.start_time = time.time()
+        print(f"\n[КАЛИБРОВКА] Внимание! Сбор базовой линии начнется через {self.delay_duration} секунд.")
+        print("[КАЛИБРОВКА] Пожалуйста, ПОКИНЬТЕ зону видимости радаров...")
         
-        # Очищаем старые буферы
+        self.is_waiting = True
+        self.is_active = False
+        self.duration = duration_sec
+        self.start_time = time.time() # Время начала отсчета паузы
+        
+        # Очищаем старые буферы заранее
         self.buffer_p1_amp_bw.clear()
         self.buffer_p1_amp_sg.clear()
         self.buffer_p2_amp_bw.clear()
         self.buffer_p2_amp_sg.clear()
 
     def update(self, port_id, amp_bw, amp_sg):
-        """Неблокирующее добавление нового пакета в буферы обоих фильтров"""
-        if not self.is_active:
-            return
+        """Неблокирующее добавление нового пакета с учетом задержки старта"""
+        current_time = time.time()
 
-        if port_id == 1:
-            self.buffer_p1_amp_bw.append(amp_bw)
-            self.buffer_p1_amp_sg.append(amp_sg)
-        elif port_id == 2:
-            self.buffer_p2_amp_bw.append(amp_bw)
-            self.buffer_p2_amp_sg.append(amp_sg)
+        # 1. Если мы в режиме ожидания (обратный отсчет)
+        if self.is_waiting:
+            if current_time - self.start_time >= self.delay_duration:
+                # Время задержки прошло, переключаемся в режим записи
+                self.is_waiting = False
+                self.is_active = True
+                self.start_time = time.time() # Перезапускаем таймер для самой калибровки
+                print(f"\n[КАЛИБРОВКА] СТАРТ! Сбор данных запущен на {self.duration} секунд(ы).")
+            else:
+                # Пока идет задержка — просто игнорируем входящие пакеты
+                return
 
-        if time.time() - self.start_time >= self.duration:
-            self._finish()
+        # 2. Если калибровка уже активно собирает данные
+        if self.is_active:
+            if port_id == 1:
+                self.buffer_p1_amp_bw.append(amp_bw)
+                self.buffer_p1_amp_sg.append(amp_sg)
+            elif port_id == 2:
+                self.buffer_p2_amp_bw.append(amp_bw)
+                self.buffer_p2_amp_sg.append(amp_sg)
+
+            if current_time - self.start_time >= self.duration:
+                self._finish()
 
     def _finish(self):
         self.is_active = False
+        self.is_waiting = False
         print("\n[КАЛИБРОВКА] Сбор данных завершен. Вычисляем дисперсию матриц...")
         
         def calculate_stats(buffer):
