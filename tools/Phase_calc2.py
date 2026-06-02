@@ -517,6 +517,14 @@ def raw_csi_to_amp_phase(msg, f_out_butter, f_out_savgol):
             interpolated_amps = []
             interpolated_phases = []
             
+            # --- ЗАЩИТА ОТ АРТЕФАКТОВ ПРИ ПОДВИСАНИЯХ ---
+            # Если пакет задержался более чем на 0.4 сек (более 20 пакетов при 50 Гц)
+            # сбрасываем целевое время, чтобы не генерировать огромный массив копий,
+            # который вводит фильтры в состояние резонанса/звона.
+            MAX_TIME_GAP = 0.4 
+            if (t_curr - active_history["next_target_ts"]) > MAX_TIME_GAP:
+                active_history["next_target_ts"] = t_curr
+
             while active_history["next_target_ts"] <= t_curr:
                 t_target = active_history["next_target_ts"]
                 alpha = np.clip((t_target - t_prev) / (t_curr - t_prev), 0.0, 1.0) if t_curr > t_prev else 1.0
@@ -713,8 +721,28 @@ if __name__ == "__main__":
     f_out2_bw = open(file_p2_butter, 'a', newline='', encoding='utf-8')
     f_out2_sg = open(file_p2_savgol, 'a', newline='', encoding='utf-8')
 
+    # До цикла добавляем переменную для отслеживания состояния калибровки
+    was_calibrating = False
+
     try:
         while True:
+            is_calibrating_now = calibrator.is_active or calibrator.is_waiting
+
+            # Если калибровка только что закончилась, обновляем базы анализаторов
+            if was_calibrating and not is_calibrating_now:
+                print("\n[СИСТЕМА] Калибровка завершена. Обновление эталонов в анализаторах...")
+                analyzer_p1._load_baseline()
+                analyzer_p2._load_baseline()
+                # Очищаем буферы, чтобы старые данные не вызвали ложных срабатываний
+                analyzer_p1.amp_bw_buffer.clear()
+                analyzer_p1.amp_sg_buffer.clear()
+                analyzer_p1.phase_bw_buffer.clear()
+                analyzer_p2.amp_bw_buffer.clear()
+                analyzer_p2.amp_sg_buffer.clear()
+                analyzer_p2.phase_bw_buffer.clear()
+
+            was_calibrating = is_calibrating_now
+
             # Обработка данных первой очереди
             try:
                 msg1 = controller.queue_read1.get(timeout=0.05)
@@ -722,7 +750,10 @@ if __name__ == "__main__":
                 if t == 'CSI_DATA':
                     amp_raw, amp_bw, phase_raw, phase_bw, amp_sg, phase_sg = raw_csi_to_amp_phase(msg1, f_out1_bw, f_out1_sg)
                     calibrator.update(port_id=1, amp_bw=amp_bw, amp_sg=amp_sg)
-                    analyzer_p1.update(amp_bw=amp_bw, amp_sg=amp_sg, phase_bw=phase_bw, phase_sg=phase_sg)
+                    
+                    # Передаем данные в анализатор ТОЛЬКО если не идет калибровка
+                    if not is_calibrating_now:
+                        analyzer_p1.update(amp_bw=amp_bw, amp_sg=amp_sg, phase_bw=phase_bw, phase_sg=phase_sg)
                 elif t == 'LOG_DATA':
                     print(f"[P1]: LOG - {msg1.get('data')}")
                 elif t == 'FAIL_EVENT':
@@ -730,7 +761,7 @@ if __name__ == "__main__":
             except queue.Empty:
                 pass
 
-            # Обработка данных второй очереди
+            # Обработка данных второй очереди (аналогично)
             try:
                 msg2 = controller.queue_read2.get(timeout=0.05)
                 t = msg2.get('type', 'Unknown')
@@ -738,13 +769,16 @@ if __name__ == "__main__":
                 if t == 'CSI_DATA':
                     amp_raw, amp_bw, phase_raw, phase_bw, amp_sg, phase_sg = raw_csi_to_amp_phase(msg2, f_out2_bw, f_out2_sg)
                     calibrator.update(port_id=2, amp_bw=amp_bw, amp_sg=amp_sg)
-                    analyzer_p2.update(amp_bw=amp_bw, amp_sg=amp_sg, phase_bw=phase_bw, phase_sg=phase_sg)
+                    
+                    if not is_calibrating_now:
+                        analyzer_p2.update(amp_bw=amp_bw, amp_sg=amp_sg, phase_bw=phase_bw, phase_sg=phase_sg)
                 elif t == 'LOG_DATA':
                     print(f"[P2]: LOG - {msg2.get('data')}")
                 elif t == 'FAIL_EVENT':
                     print(f"[P2]: КРИТИЧЕСКАЯ ОШИБКА - {msg2.get('data')}")
             except queue.Empty:
                 pass
+
 
     except KeyboardInterrupt:
         print("\nОстановка...")
