@@ -10,3 +10,9 @@
 /tools/log
 /Token.txt
 /dependencies.lock
+/sdkconfig.old
+/sdkconfig
+/tools/config/gui_config.json
+/tools/config
+/tools/.vscode
+/tools/__pycache__
