@@ -17,12 +17,23 @@ class CSIAnalyzer:
         
         self.packet_count = 0
         
-        self.THRESH_PRESENCE_MULTIPLIER = 2.0  
-        self.THRESH_MOVEMENT_MULTIPLIER = 10.0
+        self.THRESH_PRESENCE_MULTIPLIER = 1.0  
+        self.THRESH_MOVEMENT_MULTIPLIER = 2.0
         
         self.baseline_bw_var = None
         self.baseline_sg_var = None
         self._load_baseline()
+
+        # --- Новые переменные для стабилизации состояний и таймингов биометрии ---
+        self.current_state = "EMPTY"       # Текущий подтвержденный статус
+        self.candidate_state = "EMPTY"     # Потенциальный новый статус
+        self.candidate_count = 0           # Счетчик циклов удержания кандидата
+        
+        # Порог подтверждения (3 окна подряд = 3 секунды при update_interval_sec=1.0)
+        self.DEBOUNCE_THRESH = 3 
+        
+        # Таймер для вывода биометрии строго раз в 15 секунд
+        self.seconds_since_last_bio = 0.0
 
     def _load_baseline(self):
         try:
@@ -73,19 +84,44 @@ class CSIAnalyzer:
         # Берем максимальное отклонение среди двух фильтров для надежности
         max_ratio = max(ratio_bw, ratio_sg)
         
+        # Определяем мгновенное состояние на текущем шаге
         if max_ratio < self.THRESH_PRESENCE_MULTIPLIER:
-            state = "EMPTY"
+            instant_state = "EMPTY"
         elif max_ratio < self.THRESH_MOVEMENT_MULTIPLIER:
-            state = "PRESENCE"
+            instant_state = "PRESENCE"
         else:
-            state = "MOVEMENT"
+            instant_state = "MOVEMENT"
             
-        print(f"\n--- [{self.port_id.upper()} СТАТУС: {state}] | Отношение к базе: BW x{ratio_bw:.1f}, SG x{ratio_sg:.1f} ---")
+        # --- Алгоритм дебаунса (инерции) для смены статуса ---
+        if instant_state == self.current_state:
+            # Если мгновенное состояние совпадает с текущим подтвержденным, сбрасываем счетчик кандидата
+            self.candidate_state = self.current_state
+            self.candidate_count = 0
+        else:
+            # Если мгновенное состояние отличается, проверяем, закрепилось ли оно
+            if instant_state == self.candidate_state:
+                self.candidate_count += 1
+            else:
+                self.candidate_state = instant_state
+                self.candidate_count = 1
+            
+            # Статус меняется в консоли ТОЛЬКО при фиксации длительного изменения
+            if self.candidate_count >= self.DEBOUNCE_THRESH:
+                old_state = self.current_state
+                self.current_state = self.candidate_state
+                self.candidate_count = 0
+                print(f"\n--- [{self.port_id.upper()} СТАТУС ИЗМЕНЕН: {old_state} -> {self.current_state}] | Отношение к базе: BW x{ratio_bw:.1f}, SG x{ratio_sg:.1f} ---")
 
-        if state == "PRESENCE":
-            self._analyze_breathing()
-        elif state == "MOVEMENT":
-            self._analyze_steps()
+        # --- Таймер периодического обновления биометрии (каждые 15 секунд) ---
+        self.seconds_since_last_bio += (self.update_interval / self.fs)
+        
+        if self.seconds_since_last_bio >= 15.0:
+            self.seconds_since_last_bio = 0.0  # Сброс таймера
+            
+            if self.current_state == "PRESENCE":
+                self._analyze_breathing()
+            elif self.current_state == "MOVEMENT":
+                self._analyze_steps()
 
     def _analyze_breathing(self):
         signal = np.array(self.phase_bw_buffer)
