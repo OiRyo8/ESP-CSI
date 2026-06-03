@@ -8,7 +8,7 @@ class CSICalibrator:
         self.num_subcarriers = num_subcarriers
         self.is_active = False
         self.is_waiting = False  # Флаг состояния задержки перед стартом
-        self.delay_duration = 5  # Задержка в секундах (настройте под себя)
+        self.delay_duration = 15  # Задержка в секундах (настройте под себя)
         self.start_time = 0
         self.duration = 0
         
