@@ -625,33 +625,42 @@ class RadarController:
 def console_input_thread(calibrator):
     """Функция выполняется в отдельном потоке и ждет команд от пользователя"""
     print("\n[ИНФО] Консоль управления активна. Доступные команды:")
-    print("  calibrate <секунды>  - Запустить калибровку пустого помещения (напр. calibrate 15)")
-    print("  status               - Проверить статус калибратора\n")
+    print("  calibrate empty <сек>    - Калибровка пустой комнаты (базовая линия)")
+    print("  calibrate presence <сек> - Калибровка статического присутствия (дыхание)")
+    print("  calibrate movement <сек> - Калибровка активного движения (ходьба)")
+    print("  status                   - Проверить статус калибратора\n")
     
     while True:
         try:
-            # sys.stdin.readline() работает стабильнее в многопоточности, чем input()
-            user_input = sys.stdin.readline().strip()
+            user_input = sys.stdin.readline().strip().lower()
             if not user_input:
                 continue
                 
             if user_input.startswith("calibrate"):
                 parts = user_input.split()
+                mode = "empty"
                 duration = 15 # по умолчанию 15 секунд
-                if len(parts) > 1:
-                    try:
-                        duration = int(parts[1])
-                    except ValueError:
-                        print("[ОШИБКА] Неверный формат времени. Используйте: calibrate 15")
-                        continue
                 
-                # Запускаем калибровку через объект калибратора
-                calibrator.start(duration_sec=duration)
+                if len(parts) >= 2:
+                    # Проверяем, указал ли пользователь режим
+                    if parts[1] in ["empty", "presence", "movement"]:
+                        mode = parts[1]
+                        if len(parts) >= 3:
+                            try: duration = int(parts[2])
+                            except ValueError: print("[ОШИБКА] Неверный формат времени.")
+                    else:
+                        # Обратная совместимость для команды 'calibrate 15'
+                        try: duration = int(parts[1])
+                        except ValueError: print("[ОШИБКА] Неверный формат времени.")
+                
+                calibrator.start(duration_sec=duration, mode=mode)
                 
             elif user_input == "status":
                 if calibrator.is_active:
                     elapsed = time.time() - calibrator.start_time
-                    print(f"[СТАТУС] Идет калибровка... Прошло {elapsed:.1f}/{calibrator.duration} сек.")
+                    print(f"[СТАТУС] Идет калибровка ({calibrator.mode})... Прошло {elapsed:.1f}/{calibrator.duration} сек.")
+                elif calibrator.is_waiting:
+                    print(f"[СТАТУС] Ожидание старта калибровки ({calibrator.mode})...")
                 else:
                     print("[СТАТУС] Калибратор ожидает команду.")
             else:
